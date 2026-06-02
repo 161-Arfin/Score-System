@@ -33,8 +33,12 @@ export default function Sidebar({
 }: SidebarProps) {
   const router = useRouter();
   const isBmtActive = router.pathname.startsWith("/bmt");
+  const isAnggotaBmtActive = router.pathname.startsWith("/anggota-bmt");
   const [isBmtMenuOpen, setIsBmtMenuOpen] = useState(isBmtActive);
   const [isBmtFlyoutOpen, setIsBmtFlyoutOpen] = useState(false);
+  const [isAnggotaBmtMenuOpen, setIsAnggotaBmtMenuOpen] =
+    useState(isAnggotaBmtActive);
+  const [isAnggotaBmtFlyoutOpen, setIsAnggotaBmtFlyoutOpen] = useState(false);
 
   const bmtMenuItems = [
     {
@@ -51,13 +55,33 @@ export default function Sidebar({
     },
   ];
 
+  const anggotaBmtMenuItems = [
+    {
+      label: "Data Anggota",
+      href: "/anggota-bmt",
+    },
+    {
+      label: "Tambah Anggota",
+      href: "/anggota-bmt/create",
+    },
+    {
+      label: "Recycle Bin",
+      href: "/anggota-bmt/recycle-bin",
+    },
+  ];
+
+  const closeFloatingMenus = () => {
+    setIsBmtFlyoutOpen(false);
+    setIsAnggotaBmtFlyoutOpen(false);
+  };
+
   return (
     <>
       <button
         type="button"
         aria-label="Tutup menu"
         onClick={() => {
-          setIsBmtFlyoutOpen(false);
+          closeFloatingMenus();
           onCloseMobile();
         }}
         className={[
@@ -73,7 +97,7 @@ export default function Sidebar({
           isMobileOpen ? "translate-x-0" : "-translate-x-full",
           "lg:translate-x-0",
           isCollapsed ? "lg:w-[72px] lg:overflow-visible" : "lg:w-64",
-          isBmtFlyoutOpen ? "lg:z-40" : "lg:z-auto",
+          isBmtFlyoutOpen || isAnggotaBmtFlyoutOpen ? "lg:z-40" : "lg:z-auto",
         ].join(" ")}
       >
         <div
@@ -95,7 +119,7 @@ export default function Sidebar({
           <button
             type="button"
             onClick={() => {
-              setIsBmtFlyoutOpen(false);
+              closeFloatingMenus();
               onCloseMobile();
             }}
             title="Tutup menu"
@@ -107,7 +131,7 @@ export default function Sidebar({
           <button
             type="button"
             onClick={() => {
-              setIsBmtFlyoutOpen(false);
+              closeFloatingMenus();
               onToggle();
             }}
             title={isCollapsed ? "Buka sidebar" : "Tutup sidebar"}
@@ -138,7 +162,7 @@ export default function Sidebar({
                 key={item.href}
                 href={item.href}
                 onClick={() => {
-                  setIsBmtFlyoutOpen(false);
+                  closeFloatingMenus();
                   onCloseMobile();
                 }}
                 title={item.label}
@@ -173,6 +197,7 @@ export default function Sidebar({
               aria-expanded={isCollapsed ? isBmtFlyoutOpen : isBmtMenuOpen}
               onClick={() => {
                 setIsBmtMenuOpen((current) => !current);
+                setIsAnggotaBmtFlyoutOpen(false);
                 setIsBmtFlyoutOpen((current) =>
                   isCollapsed ? !current : false,
                 );
@@ -225,7 +250,7 @@ export default function Sidebar({
                       key={item.href}
                       href={item.href}
                       onClick={() => {
-                        setIsBmtFlyoutOpen(false);
+                        closeFloatingMenus();
                         onCloseMobile();
                       }}
                       className={[
@@ -267,7 +292,7 @@ export default function Sidebar({
                         key={item.href}
                         href={item.href}
                         onClick={() => {
-                          setIsBmtFlyoutOpen(false);
+                          closeFloatingMenus();
                           onCloseMobile();
                         }}
                         className={[
@@ -286,36 +311,126 @@ export default function Sidebar({
             ) : null}
           </div>
 
-          <Link
-            href="/anggota-bmt"
-            onClick={() => {
-              setIsBmtFlyoutOpen(false);
-              onCloseMobile();
-            }}
-            title="Anggota BMT"
-            className={[
-              "flex min-w-max items-center gap-3 overflow-hidden rounded-lg text-sm font-semibold transition-all duration-300 ease-out lg:min-w-0",
-              isCollapsed
-                ? "lg:mx-auto lg:h-11 lg:w-11 lg:justify-center lg:gap-0 lg:px-0"
-                : "px-3 py-2.5 lg:h-10",
-              router.pathname.startsWith("/anggota-bmt")
-                ? "bg-cyan-800 text-white shadow-sm"
-                : "text-slate-600 hover:bg-cyan-50 hover:text-cyan-800",
-            ].join(" ")}
-          >
-            <UsersRound
-              className="h-[18px] w-[18px] shrink-0"
-              strokeWidth={2}
-            />
-            <span
+          <div className="relative min-w-max lg:min-w-0">
+            <button
+              type="button"
+              title="Anggota BMT"
+              aria-label="Anggota BMT"
+              aria-expanded={
+                isCollapsed ? isAnggotaBmtFlyoutOpen : isAnggotaBmtMenuOpen
+              }
+              onClick={() => {
+                setIsAnggotaBmtMenuOpen((current) => !current);
+                setIsBmtFlyoutOpen(false);
+                setIsAnggotaBmtFlyoutOpen((current) =>
+                  isCollapsed ? !current : false,
+                );
+              }}
               className={[
-                "whitespace-nowrap transition-opacity duration-200",
-                isCollapsed ? "lg:w-0 lg:opacity-0" : "opacity-100",
+                "flex w-full min-w-max items-center gap-3 overflow-hidden rounded-lg text-sm font-semibold transition-all duration-300 ease-out lg:min-w-0",
+                isCollapsed
+                  ? "lg:mx-auto lg:h-11 lg:w-11 lg:justify-center lg:gap-0 lg:px-0"
+                  : "px-3 py-2.5 lg:h-10",
+                isAnggotaBmtActive
+                  ? "bg-cyan-800 text-white shadow-sm"
+                  : "text-slate-600 hover:bg-cyan-50 hover:text-cyan-800",
               ].join(" ")}
             >
-              Anggota BMT
-            </span>
-          </Link>
+              <UsersRound
+                className="h-[18px] w-[18px] shrink-0"
+                strokeWidth={2}
+              />
+              <span
+                className={[
+                  "whitespace-nowrap transition-opacity duration-200",
+                  isCollapsed ? "lg:w-0 lg:opacity-0" : "opacity-100",
+                ].join(" ")}
+              >
+                Anggota BMT
+              </span>
+              {!isCollapsed ? (
+                <ChevronDown
+                  className={[
+                    "ml-auto h-4 w-4 transition",
+                    isAnggotaBmtMenuOpen ? "rotate-180" : "",
+                  ].join(" ")}
+                  strokeWidth={2}
+                />
+              ) : null}
+            </button>
+
+            {isAnggotaBmtMenuOpen ? (
+              <div
+                className={[
+                  "mt-2 space-y-1 border-l border-slate-200 pl-3 transition-all duration-300 ease-out lg:ml-5",
+                  isCollapsed ? "lg:hidden" : "",
+                ].join(" ")}
+              >
+                {anggotaBmtMenuItems.map((item) => {
+                  const isActive = router.pathname === item.href;
+
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => {
+                        closeFloatingMenus();
+                        onCloseMobile();
+                      }}
+                      className={[
+                        "flex h-9 items-center rounded-md px-3 text-sm font-semibold transition",
+                        isActive
+                          ? "bg-cyan-50 text-cyan-800"
+                          : "text-slate-500 hover:bg-slate-50 hover:text-slate-900",
+                      ].join(" ")}
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : null}
+
+            {isCollapsed ? (
+              <div
+                className={[
+                  "absolute left-full top-0 z-50 ml-4 hidden w-52 origin-left transform-gpu rounded-xl border border-slate-200 bg-white p-2 shadow-xl shadow-slate-900/10 transition-all duration-200 ease-out lg:block",
+                  isAnggotaBmtFlyoutOpen
+                    ? "pointer-events-auto translate-x-0 scale-100 opacity-100"
+                    : "pointer-events-none -translate-x-1 scale-95 opacity-0",
+                ].join(" ")}
+              >
+                <span
+                  aria-hidden="true"
+                  className="absolute -left-[7px] top-[22px] h-3.5 w-3.5 rotate-45 border-b border-l border-slate-200 bg-white"
+                />
+                <div className="space-y-1">
+                  {anggotaBmtMenuItems.map((item) => {
+                    const isActive = router.pathname === item.href;
+
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => {
+                          closeFloatingMenus();
+                          onCloseMobile();
+                        }}
+                        className={[
+                          "flex h-10 items-center rounded-lg px-3 text-sm font-semibold transition",
+                          isActive
+                            ? "bg-cyan-50 text-cyan-800"
+                            : "text-slate-600 hover:bg-slate-50 hover:text-slate-950",
+                        ].join(" ")}
+                      >
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
+          </div>
         </nav>
       </aside>
     </>
