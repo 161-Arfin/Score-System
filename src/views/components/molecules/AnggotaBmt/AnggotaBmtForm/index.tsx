@@ -5,9 +5,9 @@ import {
   useRef,
   useState,
   type CSSProperties,
-  type FormEvent,
 } from "react";
 import { createPortal } from "react-dom";
+import { useFormik } from "formik";
 import { ChevronDown } from "lucide-react";
 import { jumlahAnggotaOptions } from "@/features/anggota-bmt/constants";
 import {
@@ -219,43 +219,98 @@ export default function AnggotaBmtForm({
   const [isLoadingProvinces, setIsLoadingProvinces] = useState(true);
   const [isLoadingRegencies, setIsLoadingRegencies] = useState(false);
   const [isLoadingDistricts, setIsLoadingDistricts] = useState(false);
+  const formik = useFormik<AnggotaBmtPayload>({
+    enableReinitialize: true,
+    initialValues: values,
+    validateOnMount: true,
+    validate: (formValues) => {
+      const errors: Partial<Record<keyof AnggotaBmtPayload, string>> = {};
+
+      if (!formValues.kepala_keluarga.trim()) {
+        errors.kepala_keluarga = "Nama kepala keluarga wajib diisi.";
+      }
+
+      if (!formValues.nama_istri.trim()) {
+        errors.nama_istri = "Nama istri wajib diisi.";
+      }
+
+      if (!formValues.alamat.trim()) {
+        errors.alamat = "Alamat wajib diisi.";
+      }
+
+      if (!formValues.provinsi) {
+        errors.provinsi = "Provinsi wajib dipilih.";
+      }
+
+      if (!formValues.kabupaten) {
+        errors.kabupaten = "Kabupaten wajib dipilih.";
+      }
+
+      if (!formValues.kecamatan) {
+        errors.kecamatan = "Kecamatan wajib dipilih.";
+      }
+
+      if (!/^628[0-9]{7,15}$/.test(formValues.phone)) {
+        errors.phone = "Nomor Whatsapp wajib berawalan 628.";
+      }
+
+      if (!formValues.jml_anggota) {
+        errors.jml_anggota = "Jumlah anggota wajib dipilih.";
+      }
+
+      if (!formValues.instansi_id) {
+        errors.instansi_id = "Unit BMT wajib dipilih.";
+      }
+
+      return errors;
+    },
+    onSubmit: (formValues) => {
+      onChange(formValues);
+      onSubmit();
+    },
+  });
+  const formValues = formik.values;
 
   const selectedProvince = useMemo(
-    () => provinceOptions.find((option) => option.name === values.provinsi),
-    [provinceOptions, values.provinsi]
+    () => provinceOptions.find((option) => option.name === formValues.provinsi),
+    [provinceOptions, formValues.provinsi]
   );
   const selectedRegency = useMemo(
-    () => regencyOptions.find((option) => option.name === values.kabupaten),
-    [regencyOptions, values.kabupaten]
+    () => regencyOptions.find((option) => option.name === formValues.kabupaten),
+    [regencyOptions, formValues.kabupaten]
   );
 
   const updateField = (name: keyof AnggotaBmtPayload, value: string) => {
-    onChange({
-      ...values,
+    const nextValues = {
+      ...formik.values,
       [name]: value,
-    });
+    };
+
+    formik.setFieldValue(name, value);
+    onChange(nextValues);
   };
 
   const updateProvince = (value: string) => {
-    onChange({
-      ...values,
+    const nextValues = {
+      ...formik.values,
       provinsi: value,
       kabupaten: "",
       kecamatan: "",
-    });
+    };
+
+    formik.setValues(nextValues);
+    onChange(nextValues);
   };
 
   const updateRegency = (value: string) => {
-    onChange({
-      ...values,
+    const nextValues = {
+      ...formik.values,
       kabupaten: value,
       kecamatan: "",
-    });
-  };
+    };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    onSubmit();
+    formik.setValues(nextValues);
+    onChange(nextValues);
   };
 
   useEffect(() => {
@@ -311,7 +366,7 @@ export default function AnggotaBmtForm({
 
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={formik.handleSubmit}
       className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
     >
       <div className="grid gap-4 lg:grid-cols-2">
@@ -323,7 +378,7 @@ export default function AnggotaBmtForm({
             required
             name="kepala_keluarga"
             type="text"
-            value={values.kepala_keluarga}
+            value={formValues.kepala_keluarga}
             placeholder="Bapak Ahmad"
             onChange={(event) =>
               updateField("kepala_keluarga", event.target.value)
@@ -340,7 +395,7 @@ export default function AnggotaBmtForm({
             required
             name="nama_istri"
             type="text"
-            value={values.nama_istri}
+            value={formValues.nama_istri}
             placeholder="Ibu Siti"
             onChange={(event) => updateField("nama_istri", event.target.value)}
             className="h-11 w-full rounded-lg border border-slate-300 px-3.5 text-sm outline-none transition focus:border-cyan-800 focus:ring-2 focus:ring-cyan-800/10"
@@ -355,7 +410,7 @@ export default function AnggotaBmtForm({
             required
             name="alamat"
             type="text"
-            value={values.alamat}
+            value={formValues.alamat}
             placeholder="RT 01/RW 04, Desa Mawar"
             onChange={(event) => updateField("alamat", event.target.value)}
             className="h-11 w-full rounded-lg border border-slate-300 px-3.5 text-sm outline-none transition focus:border-cyan-800 focus:ring-2 focus:ring-cyan-800/10"
@@ -364,7 +419,7 @@ export default function AnggotaBmtForm({
 
         <SelectField
           label="Provinsi"
-          value={values.provinsi}
+          value={formValues.provinsi}
           placeholder={
             isLoadingProvinces ? "Memuat provinsi..." : "Pilih provinsi"
           }
@@ -378,7 +433,7 @@ export default function AnggotaBmtForm({
 
         <SelectField
           label="Kabupaten"
-          value={values.kabupaten}
+          value={formValues.kabupaten}
           placeholder={
             isLoadingRegencies ? "Memuat kabupaten..." : "Pilih kabupaten"
           }
@@ -386,13 +441,13 @@ export default function AnggotaBmtForm({
             label: option.name,
             value: option.name,
           }))}
-          disabled={!values.provinsi || isLoadingRegencies}
+          disabled={!formValues.provinsi || isLoadingRegencies}
           onChange={updateRegency}
         />
 
         <SelectField
           label="Kecamatan"
-          value={values.kecamatan}
+          value={formValues.kecamatan}
           placeholder={
             isLoadingDistricts ? "Memuat kecamatan..." : "Pilih kecamatan"
           }
@@ -400,7 +455,7 @@ export default function AnggotaBmtForm({
             label: option.name,
             value: option.name,
           }))}
-          disabled={!values.kabupaten || isLoadingDistricts}
+          disabled={!formValues.kabupaten || isLoadingDistricts}
           onChange={(value) => updateField("kecamatan", value)}
         />
 
@@ -414,7 +469,7 @@ export default function AnggotaBmtForm({
             type="tel"
             pattern="^628[0-9]{7,15}$"
             title="Gunakan format nomor berawalan 628, contoh 6281212345678"
-            value={values.phone}
+            value={formValues.phone}
             placeholder="6281212345678"
             onChange={(event) => updateField("phone", event.target.value)}
             className="h-11 w-full rounded-lg border border-slate-300 px-3.5 text-sm outline-none transition focus:border-cyan-800 focus:ring-2 focus:ring-cyan-800/10"
@@ -426,7 +481,7 @@ export default function AnggotaBmtForm({
 
         <SelectField
           label="Jumlah Anggota Keluarga"
-          value={values.jml_anggota}
+          value={formValues.jml_anggota}
           placeholder="Pilih jumlah anggota"
           options={jumlahAnggotaOptions.map((option) => ({
             label: option,
@@ -437,7 +492,7 @@ export default function AnggotaBmtForm({
 
         <SelectField
           label="Unit BMT"
-          value={values.instansi_id}
+          value={formValues.instansi_id}
           placeholder="Pilih unit BMT"
           options={unitOptions.map((unit) => ({
             label: unit.instansi_name,
@@ -458,7 +513,7 @@ export default function AnggotaBmtForm({
         </button>
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || !formik.isValid}
           className="inline-flex h-10 items-center justify-center rounded-lg bg-cyan-800 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-cyan-900 disabled:cursor-not-allowed disabled:bg-cyan-800/50"
         >
           {isSubmitting ? "Menyimpan..." : "Simpan"}
