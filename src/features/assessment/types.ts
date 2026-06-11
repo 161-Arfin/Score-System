@@ -92,3 +92,8 @@ export type AssessmentScoreResult = {
   dimensiTertinggi: string;
   dimensiTerendah: string;
 };
+
+export type AssessmentSubmitPayload = {
+  participant: AssessmentParticipant;
+  answers: AssessmentAnswerScore[];
+};

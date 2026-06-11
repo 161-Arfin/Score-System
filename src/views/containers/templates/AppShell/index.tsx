@@ -1,6 +1,12 @@
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { useSession } from "next-auth/react";
+import {
+  ADMIN_FALLBACK_PATH,
+  canAccessPath,
+  normalizeUserRole,
+} from "@/lib/auth/permissions";
 import Navbar from "@/views/containers/templates/Navbar";
 import Sidebar from "@/views/containers/templates/Sidebar";
 
@@ -10,12 +16,28 @@ type AppShellProps = {
 
 export default function AppShell({ children }: AppShellProps) {
   const router = useRouter();
+  const { data: session } = useSession();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const isAuthPage = router.pathname.startsWith("/auth");
+  const userRole = normalizeUserRole(session?.user?.role);
+
+  useEffect(() => {
+    if (!router.isReady || isAuthPage) {
+      return;
+    }
+
+    if (!canAccessPath(userRole, router.pathname)) {
+      router.replace(ADMIN_FALLBACK_PATH);
+    }
+  }, [isAuthPage, router, userRole]);
 
   if (isAuthPage) {
     return <>{children}</>;
+  }
+
+  if (!canAccessPath(userRole, router.pathname)) {
+    return null;
   }
 
   return (

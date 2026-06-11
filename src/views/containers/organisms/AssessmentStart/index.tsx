@@ -7,7 +7,11 @@ import {
   assessmentUnitBmtOptions,
   assessmentWelcome,
 } from "@/features/assessment/constants";
-import type { AssessmentValidationResult } from "@/features/assessment/types";
+import { submitAssessment } from "@/features/assessment/services/assessment.service";
+import type {
+  AssessmentParticipant,
+  AssessmentValidationResult,
+} from "@/features/assessment/types";
 import DropdownField from "@/views/components/atoms/DropdownField";
 import AssessmentPhoneDialog from "@/views/components/molecules/Assessment/AssessmentPhoneDialog";
 import AssessmentQuestionSection from "@/views/components/molecules/Assessment/AssessmentQuestionSection";
@@ -16,9 +20,13 @@ export default function AssessmentStart() {
   const [isPhoneDialogOpen, setIsPhoneDialogOpen] = useState(false);
   const [validationResult, setValidationResult] =
     useState<AssessmentValidationResult | null>(null);
+  const [participantPayload, setParticipantPayload] =
+    useState<AssessmentParticipant | null>(null);
   const [isAssessmentStarted, setIsAssessmentStarted] = useState(false);
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmittingAssessment, setIsSubmittingAssessment] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const answersFormik = useFormik<Record<string, number>>({
     initialValues: {},
     onSubmit: () => setIsSubmitted(true),
@@ -50,6 +58,30 @@ export default function AssessmentStart() {
     const isCurrentSectionComplete = currentSection.questions.every(
       (question) => answersFormik.values[question.id] !== undefined
     );
+    const handleSubmitAssessment = async () => {
+      if (!participantPayload || !isCurrentSectionComplete) {
+        return;
+      }
+
+      try {
+        setSubmitError("");
+        setIsSubmittingAssessment(true);
+        await submitAssessment({
+          participant: participantPayload,
+          answers: Object.entries(answersFormik.values).map(
+            ([questionId, score]) => ({
+              questionId,
+              score,
+            }),
+          ),
+        });
+        setIsSubmitted(true);
+      } catch {
+        setSubmitError("Assessment belum bisa disimpan. Coba ulangi kembali.");
+      } finally {
+        setIsSubmittingAssessment(false);
+      }
+    };
 
     if (isSubmitted) {
       return (
@@ -95,6 +127,7 @@ export default function AssessmentStart() {
             <div className="mt-6 flex justify-between">
               <button
                 type="button"
+                disabled={isSubmittingAssessment}
                 onClick={() => {
                   if (isFirstSection) {
                     setIsAssessmentStarted(false);
@@ -109,8 +142,8 @@ export default function AssessmentStart() {
               </button>
               <button
                 type="button"
-                disabled={!isCurrentSectionComplete}
-                onClick={() => {
+                disabled={!isCurrentSectionComplete || isSubmittingAssessment}
+                onClick={async () => {
                   if (!isCurrentSectionComplete) {
                     return;
                   }
@@ -120,13 +153,22 @@ export default function AssessmentStart() {
                     return;
                   }
 
-                  setIsSubmitted(true);
+                  await handleSubmitAssessment();
                 }}
                 className="rounded-lg bg-[#006B80] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#00586A] disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none"
               >
-                {isLastSection ? "Simpan Assessment" : "Lanjut"}
+                {isLastSection
+                  ? isSubmittingAssessment
+                    ? "Menyimpan..."
+                    : "Simpan Assessment"
+                  : "Lanjut"}
               </button>
             </div>
+            {submitError ? (
+              <p className="mt-3 text-right text-sm font-semibold text-red-600">
+                {submitError}
+              </p>
+            ) : null}
           </section>
         </main>
       );
@@ -196,7 +238,21 @@ export default function AssessmentStart() {
 
                 return errors;
               }}
-              onSubmit={() => {
+              onSubmit={(formValues) => {
+                const selectedUnit = assessmentUnitBmtOptions.find(
+                  (option) => option.value === formValues.instansi_id,
+                );
+
+                setParticipantPayload({
+                  kepala_keluarga: formValues.kepala_keluarga,
+                  nama_istri: formValues.nama_istri,
+                  phone: formValues.phone,
+                  jml_anggota: formValues.jml_anggota,
+                  instansi_id: formValues.instansi_id,
+                  instansi_name:
+                    formValues.instansi_name ?? selectedUnit?.label ?? "",
+                  alamat: formValues.alamat,
+                });
                 setCurrentSectionIndex(0);
                 setIsAssessmentStarted(true);
               }}
@@ -376,9 +432,11 @@ export default function AssessmentStart() {
           onClose={() => setIsPhoneDialogOpen(false)}
           onValidated={(result) => {
             setValidationResult(result);
+            setParticipantPayload(null);
             setIsAssessmentStarted(false);
             setCurrentSectionIndex(0);
             setIsSubmitted(false);
+            setSubmitError("");
             answersFormik.resetForm();
           }}
         />
@@ -435,9 +493,11 @@ export default function AssessmentStart() {
         onClose={() => setIsPhoneDialogOpen(false)}
         onValidated={(result) => {
           setValidationResult(result);
+          setParticipantPayload(null);
           setIsAssessmentStarted(false);
           setCurrentSectionIndex(0);
           setIsSubmitted(false);
+          setSubmitError("");
           answersFormik.resetForm();
         }}
       />

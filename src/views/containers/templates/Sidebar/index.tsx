@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useSession } from "next-auth/react";
 import {
   BarChart3,
   Building2,
@@ -12,6 +13,7 @@ import {
   X,
   UsersRound,
 } from "lucide-react";
+import { normalizeUserRole } from "@/lib/auth/permissions";
 
 type SidebarProps = {
   isCollapsed: boolean;
@@ -51,6 +53,9 @@ export default function Sidebar({
   onToggle,
 }: SidebarProps) {
   const router = useRouter();
+  const { data: session } = useSession();
+  const userRole = normalizeUserRole(session?.user?.role);
+  const canManageUnitBmt = userRole === "superadmin";
   const isBmtActive = router.pathname.startsWith("/bmt");
   const isAnggotaBmtActive = router.pathname.startsWith("/anggota-bmt");
   const isAssessmentActive =
@@ -213,10 +218,9 @@ export default function Sidebar({
             );
           })}
 
-          <SidebarSectionLabel isCollapsed={isCollapsed}>
-            BMT
-          </SidebarSectionLabel>
+          <SidebarSectionLabel isCollapsed={isCollapsed}>BMT</SidebarSectionLabel>
 
+          {canManageUnitBmt ? (
           <div className="relative min-w-max lg:min-w-0">
             <button
               type="button"
@@ -338,6 +342,7 @@ export default function Sidebar({
               </div>
             ) : null}
           </div>
+          ) : null}
 
           <div className="relative min-w-max lg:min-w-0">
             <button
