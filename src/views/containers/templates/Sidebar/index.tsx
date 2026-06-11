@@ -5,7 +5,10 @@ import {
   BarChart3,
   Building2,
   ChevronDown,
+  ClipboardList,
+  ClipboardMinus,
   Menu,
+  UserRound,
   X,
   UsersRound,
 } from "lucide-react";
@@ -25,6 +28,22 @@ const navigationItems = [
   },
 ];
 
+function SidebarSectionLabel({
+  children,
+  isCollapsed,
+}: {
+  children: string;
+  isCollapsed: boolean;
+}) {
+  return (
+    <div className={["pt-3", isCollapsed ? "lg:hidden" : ""].join(" ")}>
+      <p className="px-3 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">
+        {children}
+      </p>
+    </div>
+  );
+}
+
 export default function Sidebar({
   isCollapsed,
   isMobileOpen,
@@ -34,6 +53,11 @@ export default function Sidebar({
   const router = useRouter();
   const isBmtActive = router.pathname.startsWith("/bmt");
   const isAnggotaBmtActive = router.pathname.startsWith("/anggota-bmt");
+  const isAssessmentActive =
+    router.pathname === "/assessment" ||
+    router.pathname === "/assessment/response";
+  const isScoreAssessmentActive = router.pathname === "/assessment/score";
+  const isProfileActive = router.pathname.startsWith("/profile");
   const [isBmtMenuOpen, setIsBmtMenuOpen] = useState(isBmtActive);
   const [isBmtFlyoutOpen, setIsBmtFlyoutOpen] = useState(false);
   const [isAnggotaBmtMenuOpen, setIsAnggotaBmtMenuOpen] =
@@ -188,6 +212,10 @@ export default function Sidebar({
               </Link>
             );
           })}
+
+          <SidebarSectionLabel isCollapsed={isCollapsed}>
+            BMT
+          </SidebarSectionLabel>
 
           <div className="relative min-w-max lg:min-w-0">
             <button
@@ -431,6 +459,107 @@ export default function Sidebar({
               </div>
             ) : null}
           </div>
+
+          <SidebarSectionLabel isCollapsed={isCollapsed}>
+            Assessment
+          </SidebarSectionLabel>
+
+          <Link
+            href="/assessment/response"
+            onClick={() => {
+              closeFloatingMenus();
+              onCloseMobile();
+            }}
+            title="Response Assessment"
+            className={[
+              "flex min-w-max items-center gap-3 overflow-hidden rounded-lg text-sm font-semibold transition-all duration-300 ease-out lg:min-w-0",
+              isCollapsed
+                ? "lg:mx-auto lg:h-11 lg:w-11 lg:justify-center lg:gap-0 lg:px-0"
+                : "px-3 py-2.5 lg:h-10",
+              isAssessmentActive
+                ? "bg-cyan-800 text-white shadow-sm"
+                : "text-slate-600 hover:bg-cyan-50 hover:text-cyan-800",
+            ].join(" ")}
+          >
+            <ClipboardList
+              className="h-[18px] w-[18px] shrink-0"
+              strokeWidth={2}
+            />
+            <span
+              className={[
+                "whitespace-nowrap transition-opacity duration-200",
+                isCollapsed ? "lg:w-0 lg:opacity-0" : "opacity-100",
+              ].join(" ")}
+            >
+              Response Assessment
+            </span>
+          </Link>
+
+          <Link
+            href="/assessment/score"
+            onClick={() => {
+              closeFloatingMenus();
+              onCloseMobile();
+            }}
+            title="Score Assessment"
+            className={[
+              "flex min-w-max items-center gap-3 overflow-hidden rounded-lg text-sm font-semibold transition-all duration-300 ease-out lg:min-w-0",
+              isCollapsed
+                ? "lg:mx-auto lg:h-11 lg:w-11 lg:justify-center lg:gap-0 lg:px-0"
+                : "px-3 py-2.5 lg:h-10",
+              isScoreAssessmentActive
+                ? "bg-cyan-800 text-white shadow-sm"
+                : "text-slate-600 hover:bg-cyan-50 hover:text-cyan-800",
+            ].join(" ")}
+          >
+            <ClipboardMinus
+              className="h-[18px] w-[18px] shrink-0"
+              strokeWidth={2}
+            />
+            <span
+              className={[
+                "whitespace-nowrap transition-opacity duration-200",
+                isCollapsed ? "lg:w-0 lg:opacity-0" : "opacity-100",
+              ].join(" ")}
+            >
+              Score Assessment
+            </span>
+          </Link>
+
+          <SidebarSectionLabel isCollapsed={isCollapsed}>
+            User
+          </SidebarSectionLabel>
+
+          <Link
+            href="/profile"
+            onClick={() => {
+              closeFloatingMenus();
+              onCloseMobile();
+            }}
+            title="Profile User"
+            className={[
+              "flex min-w-max items-center gap-3 overflow-hidden rounded-lg text-sm font-semibold transition-all duration-300 ease-out lg:min-w-0",
+              isCollapsed
+                ? "lg:mx-auto lg:h-11 lg:w-11 lg:justify-center lg:gap-0 lg:px-0"
+                : "px-3 py-2.5 lg:h-10",
+              isProfileActive
+                ? "bg-cyan-800 text-white shadow-sm"
+                : "text-slate-600 hover:bg-cyan-50 hover:text-cyan-800",
+            ].join(" ")}
+          >
+            <UserRound
+              className="h-[18px] w-[18px] shrink-0"
+              strokeWidth={2}
+            />
+            <span
+              className={[
+                "whitespace-nowrap transition-opacity duration-200",
+                isCollapsed ? "lg:w-0 lg:opacity-0" : "opacity-100",
+              ].join(" ")}
+            >
+              Profile User
+            </span>
+          </Link>
         </nav>
       </aside>
     </>

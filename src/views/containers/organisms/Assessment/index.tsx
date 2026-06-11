@@ -1,5 +1,5 @@
 import AssessmentResponse from "@/views/containers/organisms/AssessmentResponse";
 
-export default function AssessmentPage() {
+export default function Assessment() {
   return <AssessmentResponse />;
 }

@@ -8,18 +8,20 @@ type PublicAssessmentPage = NextPage & {
 };
 
 const AssessmentStartRoute: PublicAssessmentPage = () => {
-    const handleOpenMobileSidebar = () => {};
-    
-    return (
+  return (
     <div
       id="assessment-scroll-root"
       className="fixed inset-0 z-[100] min-h-screen overflow-y-auto bg-slate-50"
     >
-        <Navbar onOpenMobileSidebar={handleOpenMobileSidebar} />
-        <AssessmentStartPage />
-        <Footer />
-      </div>
-    );
+      <Navbar
+        constrained
+        showMobileMenu={false}
+        title="Sakinah Score Assessment"
+      />
+      <AssessmentStartPage />
+      <Footer />
+    </div>
+  );
 };
 
 AssessmentStartRoute.publicLayout = true;
