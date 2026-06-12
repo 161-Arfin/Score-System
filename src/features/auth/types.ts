@@ -3,7 +3,7 @@ export type LoginPayload = {
   password: string;
 };
 
-export type AuthRole = "admin" | "superadmin";
+export type AuthRole = "user" | "superadmin";
 
 export type AuthUser = {
   id: string;
