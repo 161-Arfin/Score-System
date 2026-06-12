@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useSession } from "next-auth/react";
 import {
   BarChart3,
   Building2,
@@ -12,6 +13,7 @@ import {
   X,
   UsersRound,
 } from "lucide-react";
+import { normalizeUserRole } from "@/lib/auth/permissions";
 
 type SidebarProps = {
   isCollapsed: boolean;
@@ -35,8 +37,16 @@ function SidebarSectionLabel({
   children: string;
   isCollapsed: boolean;
 }) {
+  if (isCollapsed) {
+    return (
+      <div className="hidden h-5 items-center justify-center lg:flex">
+        <span className="h-px w-7 rounded-full bg-slate-200" />
+      </div>
+    );
+  }
+
   return (
-    <div className={["pt-3", isCollapsed ? "lg:hidden" : ""].join(" ")}>
+    <div className="pt-3">
       <p className="px-3 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">
         {children}
       </p>
@@ -51,6 +61,9 @@ export default function Sidebar({
   onToggle,
 }: SidebarProps) {
   const router = useRouter();
+  const { data: session } = useSession();
+  const userRole = normalizeUserRole(session?.user?.role);
+  const canManageUnitBmt = userRole === "superadmin";
   const isBmtActive = router.pathname.startsWith("/bmt");
   const isAnggotaBmtActive = router.pathname.startsWith("/anggota-bmt");
   const isAssessmentActive =
@@ -168,10 +181,10 @@ export default function Sidebar({
 
         <nav
           className={[
-            "space-y-2 py-5 transition-[padding] duration-300 ease-out",
+            "py-5 transition-[padding] duration-300 ease-out",
             isCollapsed
-              ? "overflow-y-auto lg:overflow-visible lg:px-3"
-              : "overflow-y-auto px-4",
+              ? "space-y-3 overflow-y-auto lg:overflow-visible lg:px-3"
+              : "space-y-2 overflow-y-auto px-4",
           ].join(" ")}
         >
           {navigationItems.map((item) => {
@@ -213,105 +226,62 @@ export default function Sidebar({
             );
           })}
 
-          <SidebarSectionLabel isCollapsed={isCollapsed}>
-            BMT
-          </SidebarSectionLabel>
+          <SidebarSectionLabel isCollapsed={isCollapsed}>BMT</SidebarSectionLabel>
 
-          <div className="relative min-w-max lg:min-w-0">
-            <button
-              type="button"
-              title="Unit BMT"
-              aria-label="Unit BMT"
-              aria-expanded={isCollapsed ? isBmtFlyoutOpen : isBmtMenuOpen}
-              onClick={() => {
-                setIsBmtMenuOpen((current) => !current);
-                setIsAnggotaBmtFlyoutOpen(false);
-                setIsBmtFlyoutOpen((current) =>
-                  isCollapsed ? !current : false,
-                );
-              }}
-              className={[
-                "flex w-full min-w-max items-center gap-3 overflow-hidden rounded-lg text-sm font-semibold transition-all duration-300 ease-out lg:min-w-0",
-                isCollapsed
-                  ? "lg:mx-auto lg:h-11 lg:w-11 lg:justify-center lg:gap-0 lg:px-0"
-                  : "px-3 py-2.5 lg:h-10",
-                isBmtActive
-                  ? "bg-cyan-800 text-white shadow-sm"
-                  : "text-slate-600 hover:bg-cyan-50 hover:text-cyan-800",
-              ].join(" ")}
-            >
-              <Building2
-                className="h-[18px] w-[18px] shrink-0"
-                strokeWidth={2}
-              />
-              <span
+          {canManageUnitBmt ? (
+            <div className="relative min-w-max lg:min-w-0">
+              <button
+                type="button"
+                title="Unit BMT"
+                aria-label="Unit BMT"
+                aria-expanded={isCollapsed ? isBmtFlyoutOpen : isBmtMenuOpen}
+                onClick={() => {
+                  setIsBmtMenuOpen((current) => !current);
+                  setIsAnggotaBmtFlyoutOpen(false);
+                  setIsBmtFlyoutOpen((current) =>
+                    isCollapsed ? !current : false,
+                  );
+                }}
                 className={[
-                  "whitespace-nowrap transition-opacity duration-200",
-                  isCollapsed ? "lg:w-0 lg:opacity-0" : "opacity-100",
+                  "flex w-full min-w-max items-center gap-3 overflow-hidden rounded-lg text-sm font-semibold transition-all duration-300 ease-out lg:min-w-0",
+                  isCollapsed
+                    ? "lg:mx-auto lg:h-11 lg:w-11 lg:justify-center lg:gap-0 lg:px-0"
+                    : "px-3 py-2.5 lg:h-10",
+                  isBmtActive
+                    ? "bg-cyan-800 text-white shadow-sm"
+                    : "text-slate-600 hover:bg-cyan-50 hover:text-cyan-800",
                 ].join(" ")}
               >
-                Unit BMT
-              </span>
-              {!isCollapsed ? (
-                <ChevronDown
-                  className={[
-                    "ml-auto h-4 w-4 transition",
-                    isBmtMenuOpen ? "rotate-180" : "",
-                  ].join(" ")}
+                <Building2
+                  className="h-[18px] w-[18px] shrink-0"
                   strokeWidth={2}
                 />
-              ) : null}
-            </button>
-
-            {isBmtMenuOpen ? (
-              <div
-                className={[
-                  "mt-2 space-y-1 border-l border-slate-200 pl-3 transition-all duration-300 ease-out lg:ml-5",
-                  isCollapsed ? "lg:hidden" : "",
-                ].join(" ")}
-              >
-                {bmtMenuItems.map((item) => {
-                  const isActive = router.pathname === item.href;
-
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => {
-                        closeFloatingMenus();
-                        onCloseMobile();
-                      }}
-                      className={[
-                        "flex h-9 items-center rounded-md px-3 text-sm font-semibold transition",
-                        isActive
-                          ? "bg-cyan-50 text-cyan-800"
-                          : "text-slate-500 hover:bg-slate-50 hover:text-slate-900",
-                      ].join(" ")}
-                    >
-                      {item.label}
-                    </Link>
-                  );
-                })}
-              </div>
-            ) : null}
-
-            {isCollapsed ? (
-              <div
-                className={[
-                  "absolute left-full top-0 z-50 ml-4 hidden w-52 origin-left transform-gpu rounded-xl border border-slate-200 bg-white p-2 shadow-xl shadow-slate-900/10 transition-all duration-200 ease-out lg:block",
-                  isBmtFlyoutOpen
-                    ? "pointer-events-auto translate-x-0 scale-100 opacity-100"
-                    : "pointer-events-none -translate-x-1 scale-95 opacity-0",
-                ].join(" ")}
-              >
                 <span
-                  aria-hidden="true"
-                  className="absolute -left-[7px] top-[22px] h-3.5 w-3.5 rotate-45 border-b border-l border-slate-200 bg-white"
-                />
-                {/* <p className="px-3 py-2 text-xs font-bold uppercase tracking-wide text-cyan-800">
+                  className={[
+                    "whitespace-nowrap transition-opacity duration-200",
+                    isCollapsed ? "lg:w-0 lg:opacity-0" : "opacity-100",
+                  ].join(" ")}
+                >
                   Unit BMT
-                </p> */}
-                <div className="space-y-1">
+                </span>
+                {!isCollapsed ? (
+                  <ChevronDown
+                    className={[
+                      "ml-auto h-4 w-4 transition",
+                      isBmtMenuOpen ? "rotate-180" : "",
+                    ].join(" ")}
+                    strokeWidth={2}
+                  />
+                ) : null}
+              </button>
+
+              {isBmtMenuOpen ? (
+                <div
+                  className={[
+                    "mt-2 space-y-1 border-l border-slate-200 pl-3 transition-all duration-300 ease-out lg:ml-5",
+                    isCollapsed ? "lg:hidden" : "",
+                  ].join(" ")}
+                >
                   {bmtMenuItems.map((item) => {
                     const isActive = router.pathname === item.href;
 
@@ -324,10 +294,10 @@ export default function Sidebar({
                           onCloseMobile();
                         }}
                         className={[
-                          "flex h-10 items-center rounded-lg px-3 text-sm font-semibold transition",
+                          "flex h-9 items-center rounded-md px-3 text-sm font-semibold transition",
                           isActive
                             ? "bg-cyan-50 text-cyan-800"
-                            : "text-slate-600 hover:bg-slate-50 hover:text-slate-950",
+                            : "text-slate-500 hover:bg-slate-50 hover:text-slate-900",
                         ].join(" ")}
                       >
                         {item.label}
@@ -335,9 +305,52 @@ export default function Sidebar({
                     );
                   })}
                 </div>
-              </div>
-            ) : null}
-          </div>
+              ) : null}
+
+              {isCollapsed ? (
+                <div
+                  className={[
+                    "absolute left-full top-0 z-50 ml-4 hidden w-52 origin-left transform-gpu rounded-xl border border-slate-200 bg-white p-2 shadow-xl shadow-slate-900/10 transition-all duration-200 ease-out lg:block",
+                    isBmtFlyoutOpen
+                      ? "pointer-events-auto translate-x-0 scale-100 opacity-100"
+                      : "pointer-events-none -translate-x-1 scale-95 opacity-0",
+                  ].join(" ")}
+                >
+                  <span
+                    aria-hidden="true"
+                    className="absolute -left-[7px] top-[22px] h-3.5 w-3.5 rotate-45 border-b border-l border-slate-200 bg-white"
+                  />
+                  {/* <p className="px-3 py-2 text-xs font-bold uppercase tracking-wide text-cyan-800">
+                  Unit BMT
+                </p> */}
+                  <div className="space-y-1">
+                    {bmtMenuItems.map((item) => {
+                      const isActive = router.pathname === item.href;
+
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={() => {
+                            closeFloatingMenus();
+                            onCloseMobile();
+                          }}
+                          className={[
+                            "flex h-10 items-center rounded-lg px-3 text-sm font-semibold transition",
+                            isActive
+                              ? "bg-cyan-50 text-cyan-800"
+                              : "text-slate-600 hover:bg-slate-50 hover:text-slate-950",
+                          ].join(" ")}
+                        >
+                          {item.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
 
           <div className="relative min-w-max lg:min-w-0">
             <button

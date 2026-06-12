@@ -1,13 +1,75 @@
 import { assessmentParticipants, assessmentResults } from "../mocks";
 import { assessmentSections } from "../constants";
+import { api } from "@/lib/api";
 import type {
   AssessmentDimensionScore,
   AssessmentResult,
   AssessmentScoreResult,
+  AssessmentSubmitPayload,
   AssessmentValidationResult,
 } from "../types";
 
 const phonePattern = /^628\d{8,13}$/;
+const shouldUseMockAssessmentData =
+  process.env.NEXT_PUBLIC_USE_ASSESSMENT_MOCK !== "false";
+
+type BackendAssessmentValidationResponse = Partial<{
+  status: "registered" | "new";
+  data: Partial<AssessmentValidationResult> | unknown;
+  participant: AssessmentValidationResult extends infer T
+    ? T extends { participant: infer P }
+      ? P
+      : never
+    : never;
+  phone: string;
+  message: string;
+}>;
+
+function getResponseData<T>(response: unknown): T {
+  if (response && typeof response === "object" && "data" in response) {
+    const data = (response as { data?: unknown }).data;
+
+    if (data && typeof data === "object" && "data" in data) {
+      return (data as { data: T }).data;
+    }
+
+    return data as T;
+  }
+
+  return response as T;
+}
+
+function normalizeValidationResponse(
+  payload: BackendAssessmentValidationResponse,
+  phone: string,
+): AssessmentValidationResult {
+  const source =
+    payload.data && typeof payload.data === "object"
+      ? (payload.data as BackendAssessmentValidationResponse)
+      : payload;
+  const status = source.status ?? payload.status;
+  const participant = source.participant ?? payload.participant;
+  const message =
+    source.message ??
+    payload.message ??
+    (status === "registered"
+      ? "Data peserta berhasil ditemukan."
+      : "Silahkan lanjutkan untuk mengisi data keluarga anda.");
+
+  if (status === "registered" && participant) {
+    return {
+      status: "registered",
+      participant,
+      message,
+    };
+  }
+
+  return {
+    status: "new",
+    phone: source.phone ?? payload.phone ?? phone,
+    message,
+  };
+}
 
 export async function validateAssessmentPhone(
   phone: string,
@@ -16,6 +78,17 @@ export async function validateAssessmentPhone(
 
   if (!phonePattern.test(normalizedPhone)) {
     throw new Error("Nomor Whatsapp wajib diawali 628 dan berisi angka.");
+  }
+
+  if (!shouldUseMockAssessmentData) {
+    const response = await api.post("/assessment/validate-phone", {
+      phone: normalizedPhone,
+    });
+
+    return normalizeValidationResponse(
+      getResponseData<BackendAssessmentValidationResponse>(response),
+      normalizedPhone,
+    );
   }
 
   const participant = assessmentParticipants.find(
@@ -42,7 +115,23 @@ export async function validateAssessmentPhone(
 }
 
 export async function getAssessmentResults(): Promise<AssessmentResult[]> {
+  if (!shouldUseMockAssessmentData) {
+    const response = await api.get("/assessment/responses");
+
+    return getResponseData<AssessmentResult[]>(response);
+  }
+
   return assessmentResults;
+}
+
+export async function submitAssessment(
+  payload: AssessmentSubmitPayload,
+): Promise<void> {
+  if (shouldUseMockAssessmentData) {
+    return;
+  }
+
+  await api.post("/assessment", payload);
 }
 
 const dimensionConfig: Array<{
@@ -122,6 +211,12 @@ function getDimensionScores(row: AssessmentResult): AssessmentDimensionScore[] {
 export async function getAssessmentScoreResults(): Promise<
   AssessmentScoreResult[]
 > {
+  if (!shouldUseMockAssessmentData) {
+    const response = await api.get("/assessment/scores");
+
+    return getResponseData<AssessmentScoreResult[]>(response);
+  }
+
   return assessmentResults.map((row) => {
     const dimensionScores = getDimensionScores(row);
     const scoreByKey = dimensionScores.reduce(

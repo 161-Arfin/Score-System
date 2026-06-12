@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
+import { useSession } from "next-auth/react";
 import { defaultDashboardFilters } from "@/features/dashboard/constants";
 import { getDashboardData } from "@/features/dashboard/services/dashboard.service";
 import type { DashboardData } from "@/features/dashboard/types";
+import { normalizeUserRole } from "@/lib/auth/permissions";
 import BottomInsightPanel from "@/views/components/molecules/Dashboard/BottomInsightPanel";
 import DashboardFilters from "@/views/components/molecules/Dashboard/DashboardFilters";
 import DashboardSummary from "@/views/components/molecules/Dashboard/DashboardSummary";
@@ -12,6 +14,9 @@ import TierDistribution from "@/views/components/molecules/Dashboard/TierDistrib
 import UnitPerformanceTable from "@/views/components/molecules/Dashboard/UnitPerformanceTable";
 
 export default function Dashboard() {
+  const { data: session } = useSession();
+  const userRole = normalizeUserRole(session?.user?.role);
+  const isSuperAdmin = userRole === "superadmin";
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
@@ -24,7 +29,10 @@ export default function Dashboard() {
         setIsLoading(true);
         setErrorMessage("");
 
-        const data = await getDashboardData(defaultDashboardFilters);
+        const data = await getDashboardData(defaultDashboardFilters, {
+          role: userRole,
+          instansiId: session?.user?.instansi_id,
+        });
 
         if (isMounted) {
           setDashboardData(data);
@@ -45,7 +53,7 @@ export default function Dashboard() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [session?.user?.instansi_id, userRole]);
 
   const riskSummary = useMemo(() => {
     const bronzeTotal = dashboardData?.familyScoreRows.filter(
@@ -95,8 +103,9 @@ export default function Dashboard() {
               Sakinah Score Dashboard
             </h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-              Monitoring score keluarga binaan, performa unit BMT, dan dimensi
-              pendampingan prioritas.
+              {isSuperAdmin
+                ? "Monitoring score keluarga binaan, performa unit BMT, dan dimensi pendampingan prioritas."
+                : "Monitoring score keluarga binaan dan dimensi pendampingan prioritas pada unit BMT Anda."}
             </p>
           </div>
         </div>
@@ -110,8 +119,12 @@ export default function Dashboard() {
       </div>
 
       <MonthlyTrendChart trends={dashboardData.monthlyTrend} />
-      <UnitPerformanceTable rows={dashboardData.unitPerformanceRows} />
-      <DashboardFilters filters={dashboardData.filterOptions} />
+      {isSuperAdmin ? (
+        <>
+          <UnitPerformanceTable rows={dashboardData.unitPerformanceRows} />
+          <DashboardFilters filters={dashboardData.filterOptions} />
+        </>
+      ) : null}
       <FamilyScoreTable rows={dashboardData.familyScoreRows} />
       <BottomInsightPanel
         bronzeTotal={riskSummary.bronzeTotal}
