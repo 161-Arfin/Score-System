@@ -35,7 +35,7 @@ type BackendAuthUser = AuthUser & {
 };
 
 function getConfiguredRole(): AuthUser["role"] {
-  return process.env.AUTH_DEMO_ROLE === "admin" ? "admin" : "superadmin";
+  return process.env.AUTH_DEMO_ROLE === "admin" ? "user" : "superadmin";
 }
 
 function getConfiguredInstansiId() {
@@ -54,8 +54,8 @@ function resolveRole(usertypeName?: unknown, usertypeId?: unknown): AuthUser["ro
     return "superadmin";
   }
 
-  if (normalizedName.includes("admin")) {
-    return "admin";
+  if (normalizedName.includes("user")) {
+    return "user";
   }
 
   const normalizedId = String(usertypeId ?? "").trim();
@@ -66,7 +66,7 @@ function resolveRole(usertypeName?: unknown, usertypeId?: unknown): AuthUser["ro
     .map((item) => item.trim())
     .filter(Boolean);
 
-  return superadminIds.includes(normalizedId) ? "superadmin" : "admin";
+  return superadminIds.includes(normalizedId) ? "superadmin" : "user";
 }
 
 function normalizeValue(value: unknown) {
@@ -112,7 +112,7 @@ async function loginWithBackendCredentials({
       return null;
     }
 
-    return {
+    const authUser: BackendAuthUser = {
       id,
       name: profile.name ?? profile.username ?? username,
       username: profile.username ?? username,
@@ -123,11 +123,13 @@ async function loginWithBackendCredentials({
       accessToken,
       refreshToken: authToken?.refresh_token ?? null,
       usertype_id: normalizeValue(profile.usertype_id),
-      usertype_name: profile.usertype_name ?? undefined,
+      usertype_name: profile.usertype_id == 1 ? "Super Admin" : profile.usertype_id == 2 ? "User" : undefined,
       is_active: profile.is_active,
       image: profile.photo ?? null,
       photo_thumb: profile.photo_thumb ?? null,
     };
+    
+    return authUser;
   } catch {
     return null;
   }
