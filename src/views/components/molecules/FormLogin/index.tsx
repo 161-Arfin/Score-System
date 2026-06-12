@@ -116,9 +116,9 @@ export default function FormLogin() {
               className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center text-slate-500 transition hover:text-cyan-800 focus-visible:rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-800/20 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {showPassword ? (
-                <EyeOff className="h-[18px] w-[18px]" strokeWidth={1.8} />
+                <EyeOff className="h-4.5 w-4.5" strokeWidth={1.8} />
               ) : (
-                <Eye className="h-[18px] w-[18px]" strokeWidth={1.8} />
+                <Eye className="h-4.5 w-4.5" strokeWidth={1.8} />
               )}
             </button>
           }
