@@ -1,16 +1,14 @@
 import { useState } from "react";
 
 export default function ChangePasswordPage() {
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
+  const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
   const resetForm = () => {
-    setCurrentPassword("");
-    setNewPassword("");
+    setPassword("");
     setConfirmPassword("");
     setErrorMessage("");
     setSuccessMessage("");
@@ -21,17 +19,17 @@ export default function ChangePasswordPage() {
     setErrorMessage("");
     setSuccessMessage("");
 
-    if (!currentPassword || !newPassword || !confirmPassword) {
+    if (!password || !confirmPassword) {
       setErrorMessage("Semua field password wajib diisi.");
       return;
     }
 
-    if (newPassword.length < 6) {
+    if (password.length < 6) {
       setErrorMessage("Password baru minimal 6 karakter.");
       return;
     }
 
-    if (newPassword !== confirmPassword) {
+    if (password !== confirmPassword) {
       setErrorMessage("Konfirmasi password baru belum sama.");
       return;
     }
@@ -44,11 +42,7 @@ export default function ChangePasswordPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          current_password: currentPassword,
-          old_password: currentPassword,
-          new_password: newPassword,
-          password: newPassword,
-          password_confirmation: confirmPassword,
+          password,
           confirm_password: confirmPassword,
         }),
       });
@@ -62,8 +56,7 @@ export default function ChangePasswordPage() {
       }
 
       setSuccessMessage(payload?.message ?? "Password berhasil diubah.");
-      setCurrentPassword("");
-      setNewPassword("");
+      setPassword("");
       setConfirmPassword("");
     } catch {
       setErrorMessage("Password belum bisa diubah. Coba ulangi kembali.");
@@ -98,28 +91,15 @@ export default function ChangePasswordPage() {
         <div className="grid gap-5">
           <label className="block">
             <span className="text-sm font-bold text-slate-600">
-              Password Lama
-            </span>
-            <input
-              type="password"
-              name="current_password"
-              value={currentPassword}
-              disabled={isSubmitting}
-              onChange={(event) => setCurrentPassword(event.target.value)}
-              className="mt-2 h-11 w-full rounded-lg border border-slate-200 px-4 text-sm font-medium text-slate-900 outline-none transition focus:border-cyan-800 focus:ring-2 focus:ring-cyan-800/10"
-              placeholder="Masukkan password lama"
-            />
-          </label>
-          <label className="block">
-            <span className="text-sm font-bold text-slate-600">
               Password Baru
             </span>
             <input
               type="password"
-              name="new_password"
-              value={newPassword}
+              name="password"
+              required
+              value={password}
               disabled={isSubmitting}
-              onChange={(event) => setNewPassword(event.target.value)}
+              onChange={(event) => setPassword(event.target.value)}
               className="mt-2 h-11 w-full rounded-lg border border-slate-200 px-4 text-sm font-medium text-slate-900 outline-none transition focus:border-cyan-800 focus:ring-2 focus:ring-cyan-800/10"
               placeholder="Masukkan password baru"
             />
@@ -131,6 +111,7 @@ export default function ChangePasswordPage() {
             <input
               type="password"
               name="confirm_password"
+              required
               value={confirmPassword}
               disabled={isSubmitting}
               onChange={(event) => setConfirmPassword(event.target.value)}
