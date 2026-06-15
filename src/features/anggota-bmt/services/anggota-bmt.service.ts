@@ -71,7 +71,7 @@ export async function getAnggotaBmtById(id: string): Promise<AnggotaBmt> {
 }
 
 export async function createAnggotaBmt(
-  payload: AnggotaBmtPayload
+  payload: AnggotaBmtPayload,
 ): Promise<AnggotaBmt> {
   if (shouldUseMockAnggotaBmtData) {
     const row: AnggotaBmt = {
@@ -93,7 +93,7 @@ export async function createAnggotaBmt(
 
 export async function updateAnggotaBmt(
   id: string,
-  payload: AnggotaBmtPayload
+  payload: AnggotaBmtPayload,
 ): Promise<AnggotaBmt> {
   if (shouldUseMockAnggotaBmtData) {
     const current = await getAnggotaBmtById(id);
@@ -116,20 +116,18 @@ export async function updateAnggotaBmt(
 export async function deleteAnggotaBmt(id: string): Promise<void> {
   if (shouldUseMockAnggotaBmtData) {
     mockRows = mockRows.map((row) =>
-      row.id === id ? { ...row, is_delete_keluarga: true } : row
+      row.id === id ? { ...row, is_delete_keluarga: true } : row,
     );
     return;
   }
 
-  await api.patch(`${anggotaBmtEndpoint}/${id}`, {
-    is_delete_keluarga: true,
-  });
+  await api.delete(`${anggotaBmtEndpoint}/softdelete/${id}`);
 }
 
 export async function restoreAnggotaBmt(id: string): Promise<void> {
   if (shouldUseMockAnggotaBmtData) {
     mockRows = mockRows.map((row) =>
-      row.id === id ? { ...row, is_delete_keluarga: false } : row
+      row.id === id ? { ...row, is_delete_keluarga: false } : row,
     );
     return;
   }

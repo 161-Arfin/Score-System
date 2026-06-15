@@ -1,4 +1,4 @@
-export const anggotaBmtEndpoint = "/keluarga";
+export const anggotaBmtEndpoint = "/v1/auth/keluarga";
 
 export const wilayahIndonesiaApiBaseUrl =
   "https://emsifa.github.io/api-wilayah-indonesia/api";

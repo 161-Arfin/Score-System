@@ -1,6 +1,7 @@
 import type { UnitBmt, UnitBmtListResponse } from "../types";
 
 type BackendUnitBmt = Partial<UnitBmt> & {
+  id_instansi?: number | string;
   name?: string;
   address?: string;
   phone?: string;
@@ -16,7 +17,7 @@ type BackendBmtListResponse =
 
 export function mapUnitBmtResponse(item: BackendUnitBmt): UnitBmt {
   return {
-    id: item.id ?? "",
+    id: String(item.id ?? item.id_instansi ?? ""),
     instansi_name: item.instansi_name ?? item.name ?? "",
     instansi_address: item.instansi_address ?? item.address ?? "",
     instansi_phone: item.instansi_phone ?? item.phone ?? "",
@@ -26,13 +27,15 @@ export function mapUnitBmtResponse(item: BackendUnitBmt): UnitBmt {
 }
 
 export function mapUnitBmtListResponse(
-  response: BackendBmtListResponse
+  response: BackendBmtListResponse,
 ): UnitBmtListResponse {
-  const rows = Array.isArray(response) ? response : response.data ?? [];
+  const rows = Array.isArray(response) ? response : (response.data ?? []);
   const data = rows.map(mapUnitBmtResponse);
 
   return {
     data,
-    total: Array.isArray(response) ? data.length : response.total ?? data.length,
+    total: Array.isArray(response)
+      ? data.length
+      : (response.total ?? data.length),
   };
 }

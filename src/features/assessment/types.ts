@@ -1,4 +1,6 @@
 export type AssessmentParticipant = {
+  id?: string;
+  keluarga_id?: string;
   kepala_keluarga: string;
   nama_istri: string;
   alamat: string;

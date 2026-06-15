@@ -86,10 +86,6 @@ export default function Sidebar({
       label: "Tambah BMT",
       href: "/bmt/create",
     },
-    {
-      label: "Recycle Bin",
-      href: "/bmt/recycle-bin",
-    },
   ];
 
   const anggotaBmtMenuItems = [
@@ -100,10 +96,6 @@ export default function Sidebar({
     {
       label: "Tambah Anggota",
       href: "/anggota-bmt/create",
-    },
-    {
-      label: "Recycle Bin",
-      href: "/anggota-bmt/recycle-bin",
     },
   ];
 

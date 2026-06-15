@@ -1,6 +1,9 @@
 import { api } from "@/lib/api";
 import { bmtEndpoint, defaultBmtFilters } from "../constants";
-import { mapUnitBmtListResponse, mapUnitBmtResponse } from "../adapters/bmt.adapter";
+import {
+  mapUnitBmtListResponse,
+  mapUnitBmtResponse,
+} from "../adapters/bmt.adapter";
 import { mockUnitBmtRows } from "../mocks";
 import type {
   UnitBmt,
@@ -29,7 +32,7 @@ function filterRows(filters: UnitBmtFilters) {
 }
 
 export async function getUnitBmtList(
-  filters: UnitBmtFilters = defaultBmtFilters
+  filters: UnitBmtFilters = defaultBmtFilters,
 ): Promise<UnitBmtListResponse> {
   if (shouldUseMockBmtData) {
     const data = filterRows(filters);
@@ -98,7 +101,7 @@ export async function createUnitBmt(payload: UnitBmtPayload): Promise<UnitBmt> {
 
 export async function updateUnitBmt(
   id: string,
-  payload: UnitBmtPayload
+  payload: UnitBmtPayload,
 ): Promise<UnitBmt> {
   if (shouldUseMockBmtData) {
     const current = await getUnitBmtById(id);
@@ -120,20 +123,18 @@ export async function updateUnitBmt(
 export async function deleteUnitBmt(id: string): Promise<void> {
   if (shouldUseMockBmtData) {
     mockRows = mockRows.map((row) =>
-      row.id === id ? { ...row, is_delete_instansi: true } : row
+      row.id === id ? { ...row, is_delete_instansi: true } : row,
     );
     return;
   }
 
-  await api.patch(`${bmtEndpoint}/${id}`, {
-    is_delete_instansi: true,
-  });
+  await api.delete(`${bmtEndpoint}/softdelete/${id}`);
 }
 
 export async function restoreUnitBmt(id: string): Promise<void> {
   if (shouldUseMockBmtData) {
     mockRows = mockRows.map((row) =>
-      row.id === id ? { ...row, is_delete_instansi: false } : row
+      row.id === id ? { ...row, is_delete_instansi: false } : row,
     );
     return;
   }
