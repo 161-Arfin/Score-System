@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import { useRouter } from "next/router";
 import {
   createAnggotaBmt,
@@ -21,6 +22,29 @@ const initialValues: AnggotaBmtPayload = {
   jml_anggota: "",
   instansi_id: "",
 };
+
+function getSubmitErrorMessage(error: unknown) {
+  if (!axios.isAxiosError(error)) {
+    return "Data Anggota BMT belum bisa disimpan.";
+  }
+
+  const responseData = error.response?.data;
+
+  if (
+    responseData &&
+    typeof responseData === "object" &&
+    "message" in responseData &&
+    typeof responseData.message === "string"
+  ) {
+    return responseData.message;
+  }
+
+  if (typeof responseData === "string") {
+    return responseData;
+  }
+
+  return "Data Anggota BMT belum bisa disimpan.";
+}
 
 type AnggotaBmtFormContainerProps = {
   mode?: "create" | "edit";
@@ -101,8 +125,8 @@ export default function AnggotaBmtFormContainer({
       }
 
       await router.push("/anggota-bmt");
-    } catch {
-      setErrorMessage("Data Anggota BMT belum bisa disimpan.");
+    } catch (error) {
+      setErrorMessage(getSubmitErrorMessage(error));
     } finally {
       setIsSubmitting(false);
     }

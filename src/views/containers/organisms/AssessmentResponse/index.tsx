@@ -5,11 +5,25 @@ import AssessmentResultTable from "@/views/components/molecules/Assessment/Asses
 
 export default function AssessmentResponse() {
   const [rows, setRows] = useState<AssessmentResult[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const loadAssessmentResults = async () => {
-      const result = await getAssessmentResults();
-      setRows(result);
+      try {
+        setIsLoading(true);
+        setErrorMessage("");
+
+        const result = await getAssessmentResults();
+        setRows(result);
+      } catch {
+        setRows([]);
+        setErrorMessage(
+          "Data response assessment belum bisa dimuat. Pastikan backend sudah menyediakan endpoint READ assessment.",
+        );
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     loadAssessmentResults();
@@ -26,7 +40,24 @@ export default function AssessmentResponse() {
         </p>
       </div>
 
-      <AssessmentResultTable rows={rows} />
+      {errorMessage ? (
+        <div className="rounded-lg border border-red-200 bg-white p-4 text-sm font-medium text-red-700 shadow-sm">
+          {errorMessage}
+        </div>
+      ) : null}
+
+      {isLoading ? (
+        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+          <p className="text-sm font-semibold text-slate-950">
+            Memuat data Response Assessment...
+          </p>
+          <p className="mt-2 text-sm text-slate-500">
+            Mengambil jawaban assessment anggota yang sudah tersimpan.
+          </p>
+        </div>
+      ) : (
+        <AssessmentResultTable rows={rows} />
+      )}
     </section>
   );
 }

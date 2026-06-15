@@ -36,7 +36,11 @@ function isPublicApiRoute(pathname: string, method: string) {
     return true;
   }
 
-  return pathname === "/api/backend/assessment" && method === "POST";
+  return (
+    (pathname === "/api/backend/assessment" ||
+      pathname === "/api/backend/v1/assessment") &&
+    method === "POST"
+  );
 }
 
 function getAuthenticatedHome(role?: string | null) {
