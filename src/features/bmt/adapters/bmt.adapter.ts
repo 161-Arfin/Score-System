@@ -2,27 +2,31 @@ import type { UnitBmt, UnitBmtListResponse } from "../types";
 
 type BackendUnitBmt = Partial<UnitBmt> & {
   id_instansi?: number | string;
-  name?: string;
-  address?: string;
-  phone?: string;
-  updated_at?: string;
+  instansi_name?: string;
+  instansi_address?: string;
+  instansi_phone?: string;
+  is_delete_instansi?: boolean;
+  created_at?: string;
+  created_by?: string;
 };
 
 type BackendBmtListResponse =
   | UnitBmt[]
   | {
-      data?: BackendUnitBmt[];
-      total?: number;
-    };
+    data?: BackendUnitBmt[];
+    total?: number;
+  };
 
 export function mapUnitBmtResponse(item: BackendUnitBmt): UnitBmt {
+  console.log("Mapping item:", item);
   return {
     id: String(item.id ?? item.id_instansi ?? ""),
-    instansi_name: item.instansi_name ?? item.name ?? "",
-    instansi_address: item.instansi_address ?? item.address ?? "",
-    instansi_phone: item.instansi_phone ?? item.phone ?? "",
+    instansi_name: item.instansi_name ?? "",
+    instansi_address: item.instansi_address ?? "",
+    instansi_phone: item.instansi_phone ?? "",
     is_delete_instansi: item.is_delete_instansi ?? false,
-    updatedAt: item.updatedAt ?? item.updated_at ?? new Date().toISOString(),
+    created_at: item.created_at ?? new Date().toISOString(),
+    created_by: item.created_by ?? "Unknown",
   };
 }
 
