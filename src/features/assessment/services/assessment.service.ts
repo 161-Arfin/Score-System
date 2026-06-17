@@ -1,7 +1,9 @@
 import { assessmentParticipants, assessmentResults } from "../mocks";
 import { assessmentSections } from "../constants";
+import axios from "axios";
 import { api } from "@/lib/api";
 import type {
+  AssessmentParticipant,
   AssessmentDimensionScore,
   AssessmentResult,
   AssessmentScoreResult,
@@ -12,18 +14,36 @@ import type {
 const phonePattern = /^628\d{8,13}$/;
 const shouldUseMockAssessmentData =
   process.env.NEXT_PUBLIC_USE_ASSESSMENT_MOCK !== "false";
+const assessmentEndpoint = "/v1/assessment";
+const assessmentReadEndpoint = process.env.NEXT_PUBLIC_ASSESSMENT_READ_ENDPOINT;
+const assessmentScoreEndpoint = process.env.NEXT_PUBLIC_ASSESSMENT_SCORE_ENDPOINT;
+const assessmentValidatePhoneEndpoint =
+  process.env.NEXT_PUBLIC_ASSESSMENT_VALIDATE_PHONE_ENDPOINT ??
+  "/assessment/validate-phone";
 
 type BackendAssessmentValidationResponse = Partial<{
   status: "registered" | "new";
   data: Partial<AssessmentValidationResult> | unknown;
-  participant: AssessmentValidationResult extends infer T
-    ? T extends { participant: infer P }
-      ? P
-      : never
-    : never;
-  phone: string;
+  participant: AssessmentParticipant;
+  id?: number | string;
+  id_keluarga?: number | string;
+  keluarga_id?: number | string;
+  kepala_keluarga?: string;
+  nama_istri?: string;
+  address?: string;
+  alamat?: string;
+  phone?: string;
+  jml_anggota?: number | string;
+  instansi_id?: number | string;
+  instansi_name?: string;
   message: string;
 }>;
+
+type BackendAssessmentSubmitPayload = {
+  keluarga_id: number;
+  instansi_id: number;
+  created_by: string;
+} & Record<`${string}_score`, number>;
 
 function getResponseData<T>(response: unknown): T {
   if (response && typeof response === "object" && "data" in response) {
@@ -59,7 +79,15 @@ function normalizeValidationResponse(
   if (status === "registered" && participant) {
     return {
       status: "registered",
-      participant,
+      participant: normalizeParticipant(participant),
+      message,
+    };
+  }
+
+  if (status === "registered" && hasParticipantFields(source)) {
+    return {
+      status: "registered",
+      participant: normalizeParticipant(source),
       message,
     };
   }
@@ -69,6 +97,64 @@ function normalizeValidationResponse(
     phone: source.phone ?? payload.phone ?? phone,
     message,
   };
+}
+
+function hasParticipantFields(
+  payload: BackendAssessmentValidationResponse,
+): payload is BackendAssessmentValidationResponse & {
+  kepala_keluarga: string;
+  nama_istri: string;
+} {
+  return Boolean(payload.kepala_keluarga && payload.nama_istri);
+}
+
+function normalizeParticipant(
+  payload: AssessmentParticipant | BackendAssessmentValidationResponse,
+): AssessmentParticipant {
+  const backendPayload = payload as BackendAssessmentValidationResponse;
+  const keluargaId =
+    payload.keluarga_id ?? backendPayload.id_keluarga ?? payload.id ?? "";
+
+  return {
+    id: String(keluargaId),
+    keluarga_id: String(keluargaId),
+    kepala_keluarga: payload.kepala_keluarga ?? "",
+    nama_istri: payload.nama_istri ?? "",
+    alamat: payload.alamat ?? backendPayload.address ?? "",
+    phone: payload.phone ?? "",
+    jml_anggota: String(payload.jml_anggota ?? ""),
+    instansi_id: String(payload.instansi_id ?? ""),
+    instansi_name: payload.instansi_name ?? "",
+  };
+}
+
+function mapAssessmentSubmitPayload(
+  payload: AssessmentSubmitPayload,
+): BackendAssessmentSubmitPayload {
+  const keluargaId = Number(
+    payload.participant.keluarga_id ?? payload.participant.id,
+  );
+  const instansiId = Number(payload.participant.instansi_id);
+
+  if (!Number.isFinite(keluargaId) || keluargaId <= 0) {
+    throw new Error("ID keluarga belum tersedia untuk submit assessment.");
+  }
+
+  if (!Number.isFinite(instansiId) || instansiId <= 0) {
+    throw new Error("ID Unit BMT belum tersedia untuk submit assessment.");
+  }
+
+  return payload.answers.reduce<BackendAssessmentSubmitPayload>(
+    (result, answer) => ({
+      ...result,
+      [`${answer.questionId}_score`]: answer.score,
+    }),
+    {
+      keluarga_id: keluargaId,
+      instansi_id: instansiId,
+      created_by: payload.participant.kepala_keluarga,
+    },
+  );
 }
 
 export async function validateAssessmentPhone(
@@ -81,14 +167,24 @@ export async function validateAssessmentPhone(
   }
 
   if (!shouldUseMockAssessmentData) {
-    const response = await api.post("/assessment/validate-phone", {
-      phone: normalizedPhone,
-    });
+    try {
+      const response = await api.post(assessmentValidatePhoneEndpoint, {
+        phone: normalizedPhone,
+      });
 
-    return normalizeValidationResponse(
-      getResponseData<BackendAssessmentValidationResponse>(response),
-      normalizedPhone,
-    );
+      return normalizeValidationResponse(
+        getResponseData<BackendAssessmentValidationResponse>(response),
+        normalizedPhone,
+      );
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        throw new Error(
+          "Endpoint validasi No. Whatsapp belum tersedia di backend.",
+        );
+      }
+
+      throw error;
+    }
   }
 
   const participant = assessmentParticipants.find(
@@ -116,7 +212,11 @@ export async function validateAssessmentPhone(
 
 export async function getAssessmentResults(): Promise<AssessmentResult[]> {
   if (!shouldUseMockAssessmentData) {
-    const response = await api.get("/assessment/responses");
+    if (!assessmentReadEndpoint) {
+      return [];
+    }
+
+    const response = await api.get(assessmentReadEndpoint);
 
     return getResponseData<AssessmentResult[]>(response);
   }
@@ -131,7 +231,7 @@ export async function submitAssessment(
     return;
   }
 
-  await api.post("/assessment", payload);
+  await api.post(assessmentEndpoint, mapAssessmentSubmitPayload(payload));
 }
 
 const dimensionConfig: Array<{
@@ -212,7 +312,11 @@ export async function getAssessmentScoreResults(): Promise<
   AssessmentScoreResult[]
 > {
   if (!shouldUseMockAssessmentData) {
-    const response = await api.get("/assessment/scores");
+    if (!assessmentScoreEndpoint) {
+      return [];
+    }
+
+    const response = await api.get(assessmentScoreEndpoint);
 
     return getResponseData<AssessmentScoreResult[]>(response);
   }

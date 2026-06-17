@@ -44,13 +44,15 @@ export function mapAnggotaBmtResponse(item: BackendAnggotaBmt): AnggotaBmt {
 }
 
 export function mapAnggotaBmtListResponse(
-  response: BackendAnggotaBmtListResponse
+  response: BackendAnggotaBmtListResponse,
 ): AnggotaBmtListResponse {
-  const rows = Array.isArray(response) ? response : response.data ?? [];
+  const rows = Array.isArray(response) ? response : (response.data ?? []);
   const data = rows.map(mapAnggotaBmtResponse);
 
   return {
     data,
-    total: Array.isArray(response) ? data.length : response.total ?? data.length,
+    total: Array.isArray(response)
+      ? data.length
+      : (response.total ?? data.length),
   };
 }
