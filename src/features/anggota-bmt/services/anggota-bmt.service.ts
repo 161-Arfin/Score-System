@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { getUnitBmtList } from "@/features/bmt/services/bmt.service";
+// import { getUnitBmtList } from "@/features/bmt/services/bmt.service";
 import { anggotaBmtEndpoint } from "../constants";
 import {
   mapAnggotaBmtListResponse,
@@ -16,13 +16,6 @@ let mockRows = [...mockAnggotaBmtRows];
 
 const shouldUseMockAnggotaBmtData =
   process.env.NEXT_PUBLIC_USE_ANGGOTA_BMT_MOCK !== "false";
-
-async function getInstansiName(instansiId: string) {
-  const response = await getUnitBmtList();
-  return (
-    response.data.find((item) => item.id === instansiId)?.instansi_name ?? ""
-  );
-}
 
 export async function getAnggotaBmtList(): Promise<AnggotaBmtListResponse> {
   if (shouldUseMockAnggotaBmtData) {
@@ -67,25 +60,12 @@ export async function getAnggotaBmtById(id: string): Promise<AnggotaBmt> {
 
   const response = await api.get(`${anggotaBmtEndpoint}/${id}`);
 
-  return mapAnggotaBmtResponse(response.data);
+  return mapAnggotaBmtResponse(response.data.data);
 }
 
 export async function createAnggotaBmt(
   payload: AnggotaBmtPayload,
 ): Promise<AnggotaBmt> {
-  if (shouldUseMockAnggotaBmtData) {
-    const row: AnggotaBmt = {
-      ...payload,
-      id: `keluarga-${Date.now()}`,
-      instansi_name: await getInstansiName(payload.instansi_id),
-      is_delete_keluarga: false,
-      updatedAt: new Date().toISOString(),
-    };
-
-    mockRows = [row, ...mockRows];
-    return row;
-  }
-
   const response = await api.post(anggotaBmtEndpoint, payload);
 
   return mapAnggotaBmtResponse(response.data);
@@ -95,19 +75,6 @@ export async function updateAnggotaBmt(
   id: string,
   payload: AnggotaBmtPayload,
 ): Promise<AnggotaBmt> {
-  if (shouldUseMockAnggotaBmtData) {
-    const current = await getAnggotaBmtById(id);
-    const nextRow: AnggotaBmt = {
-      ...current,
-      ...payload,
-      instansi_name: await getInstansiName(payload.instansi_id),
-      updatedAt: new Date().toISOString(),
-    };
-
-    mockRows = mockRows.map((row) => (row.id === id ? nextRow : row));
-    return nextRow;
-  }
-
   const response = await api.put(`${anggotaBmtEndpoint}/${id}`, payload);
 
   return mapAnggotaBmtResponse(response.data);

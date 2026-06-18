@@ -26,13 +26,11 @@ export default function AnggotaBmtTable({
   return (
     <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[980px] border-collapse text-left text-sm">
+        <table className="w-full min-w-245 border-collapse text-left text-sm">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50 text-xs uppercase text-slate-500">
               <th className="w-16 px-5 py-3 font-semibold">No</th>
-              <th className="px-5 py-3 font-semibold">
-                Nama Kepala Keluarga
-              </th>
+              <th className="px-5 py-3 font-semibold">Nama Kepala Keluarga</th>
               <th className="px-5 py-3 font-semibold">Nama Istri</th>
               <th className="px-5 py-3 font-semibold">Alamat</th>
               <th className="px-5 py-3 font-semibold">No. Whatsapp</th>
@@ -60,7 +58,7 @@ export default function AnggotaBmtTable({
                 </td>
                 <td className="px-5 py-4">
                   <p className="max-w-[320px] leading-6 text-slate-600">
-                    {row.alamat}
+                    {`${row.address}, ${row.kecamatan}, ${row.kabupaten}, ${row.provinsi}`}
                   </p>
                 </td>
                 <td className="px-5 py-4 font-medium text-slate-900">

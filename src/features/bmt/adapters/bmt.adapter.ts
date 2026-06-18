@@ -18,7 +18,6 @@ type BackendBmtListResponse =
   };
 
 export function mapUnitBmtResponse(item: BackendUnitBmt): UnitBmt {
-  console.log("Mapping item:", item);
   return {
     id: String(item.id ?? item.id_instansi ?? ""),
     instansi_name: item.instansi_name ?? "",

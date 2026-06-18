@@ -29,7 +29,6 @@ export default function BmtFormContainer({
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    console.log(mode);
     if (mode !== "edit" || !unitId) {
       return;
     }
@@ -40,8 +39,7 @@ export default function BmtFormContainer({
         setErrorMessage("");
 
         const unit = await getUnitBmtById(unitId);
-        console.log(unit);
-        console.log(unitId);
+
         setValues({
           instansi_name: unit.instansi_name,
           instansi_address: unit.instansi_address,
@@ -58,7 +56,6 @@ export default function BmtFormContainer({
   }, [mode, unitId]);
 
   const handleSubmit = async () => {
-    console.log("Submitting values:", values);
     try {
       setIsSubmitting(true);
       setErrorMessage("");

@@ -77,8 +77,7 @@ export async function getUnitBmtById(id: string): Promise<UnitBmt> {
   }
 
   const response = await api.get(`${bmtEndpoint}/${id}`);
-  console.log(response.data);
-  console.log(mapUnitBmtResponse(response.data.data));
+
   return mapUnitBmtResponse(response.data.data);
 }
 
@@ -118,7 +117,7 @@ export async function updateUnitBmt(
   }
 
   const response = await api.put(`${bmtEndpoint}/${id}`, payload);
-  console.log(response.data);
+
   return mapUnitBmtResponse(response.data);
 }
 
