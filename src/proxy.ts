@@ -15,6 +15,7 @@ const publicApiPrefixes = [
   "/api/regions",
   "/api/hello",
   "/api/backend/assessment/validate-phone",
+  "/api/backend/v1/keluarga/checkbyphone",
 ];
 
 function isStaticAsset(pathname: string) {
@@ -44,7 +45,7 @@ function isPublicApiRoute(pathname: string, method: string) {
 }
 
 function getAuthenticatedHome(role?: string | null) {
-  return normalizeUserRole(role) === "admin" ? ADMIN_HOME_PATH : "/";
+  return normalizeUserRole(role) === "user" ? ADMIN_HOME_PATH : "/";
 }
 
 export async function proxy(request: NextRequest) {
