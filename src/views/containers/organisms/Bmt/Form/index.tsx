@@ -77,9 +77,6 @@ export default function BmtFormContainer({
   return (
     <div className="space-y-5">
       <div>
-        {/* <p className="text-xs font-bold uppercase tracking-wide text-cyan-800">
-          Unit BMT
-        </p> */}
         <h1 className="mt-1 text-2xl font-bold text-slate-950">
           {mode === "edit" ? "Edit Unit BMT" : "Tambah Unit BMT"}
         </h1>

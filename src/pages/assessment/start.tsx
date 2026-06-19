@@ -11,7 +11,7 @@ const AssessmentStartRoute: PublicAssessmentPage = () => {
   return (
     <div
       id="assessment-scroll-root"
-      className="fixed inset-0 z-[100] min-h-screen overflow-y-auto bg-slate-50"
+      className="fixed inset-0 z-100 min-h-screen overflow-y-auto bg-slate-50"
     >
       <Navbar
         constrained

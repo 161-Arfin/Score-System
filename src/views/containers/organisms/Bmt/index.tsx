@@ -22,6 +22,7 @@ export default function Bmt() {
       setErrorMessage("");
 
       const response = await getUnitBmtList();
+
       setRows(response.data);
     } catch {
       setErrorMessage("Data Unit BMT belum bisa dimuat.");
@@ -78,10 +79,7 @@ export default function Bmt() {
           </p>
         </div>
       ) : (
-        <BmtTable
-          rows={rows}
-          onDelete={setSelectedDeleteUnit}
-        />
+        <BmtTable rows={rows} onDelete={setSelectedDeleteUnit} />
       )}
 
       <BmtDeleteDialog
