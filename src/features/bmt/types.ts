@@ -4,7 +4,8 @@ export type UnitBmt = {
   instansi_address: string;
   instansi_phone: string;
   is_delete_instansi: boolean;
-  updatedAt: string;
+  created_at: string;
+  created_by: string;
 };
 
 export type UnitBmtPayload = {

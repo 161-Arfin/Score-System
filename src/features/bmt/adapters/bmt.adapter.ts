@@ -11,9 +11,9 @@ type BackendUnitBmt = Partial<UnitBmt> & {
 type BackendBmtListResponse =
   | UnitBmt[]
   | {
-      data?: BackendUnitBmt[];
-      total?: number;
-    };
+    data?: BackendUnitBmt[];
+    total?: number;
+  };
 
 export function mapUnitBmtResponse(item: BackendUnitBmt): UnitBmt {
   return {
@@ -22,7 +22,8 @@ export function mapUnitBmtResponse(item: BackendUnitBmt): UnitBmt {
     instansi_address: item.instansi_address ?? item.address ?? "",
     instansi_phone: item.instansi_phone ?? item.phone ?? "",
     is_delete_instansi: item.is_delete_instansi ?? false,
-    updatedAt: item.updatedAt ?? item.updated_at ?? new Date().toISOString(),
+    created_at: item.created_at ?? new Date().toISOString(),
+    created_by: item.created_by ?? "Unknown",
   };
 }
 

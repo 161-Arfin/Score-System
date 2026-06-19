@@ -14,13 +14,13 @@ import AnggotaBmtForm from "@/views/components/molecules/AnggotaBmt/AnggotaBmtFo
 const initialValues: AnggotaBmtPayload = {
   kepala_keluarga: "",
   nama_istri: "",
-  alamat: "",
+  address: "",
   kecamatan: "",
   kabupaten: "",
   provinsi: "",
   phone: "",
-  jml_anggota: "",
-  instansi_id: "",
+  jml_anggota: 0,
+  instansi_id: 0,
 };
 
 function getSubmitErrorMessage(error: unknown) {
@@ -95,7 +95,7 @@ export default function AnggotaBmtFormContainer({
         setValues({
           kepala_keluarga: anggota.kepala_keluarga,
           nama_istri: anggota.nama_istri,
-          alamat: anggota.alamat,
+          address: anggota.address,
           kecamatan: anggota.kecamatan,
           kabupaten: anggota.kabupaten,
           provinsi: anggota.provinsi,
