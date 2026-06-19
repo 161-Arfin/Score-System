@@ -1,45 +1,45 @@
 import type { AnggotaBmt, AnggotaBmtListResponse } from "../types";
 
 type BackendAnggotaBmt = Partial<AnggotaBmt> & {
-  name?: string;
-  wife_name?: string;
+  id_keluarga?: string;
+  kepala_keluarga?: string;
+  nama_istri?: string;
   address?: string;
-  whatsapp?: string;
-  total_family?: string;
-  instansi?: {
-    id?: string;
-    instansi_name?: string;
-    name?: string;
-  };
-  updated_at?: string;
+  kecamatan?: string;
+  kabupaten?: string;
+  provinsi?: string;
+  phone?: string;
+  jml_anggota?: number;
+  instansi_id?: number;
+  instansi_name?: string;
+  is_delete_keluarga?: boolean;
+  created_at?: string;
+  created_by?: string;
 };
 
 type BackendAnggotaBmtListResponse =
   | BackendAnggotaBmt[]
   | {
-      data?: BackendAnggotaBmt[];
-      total?: number;
-    };
+    data?: BackendAnggotaBmt[];
+    total?: number;
+  };
 
 export function mapAnggotaBmtResponse(item: BackendAnggotaBmt): AnggotaBmt {
   return {
-    id: item.id ?? "",
-    kepala_keluarga: item.kepala_keluarga ?? item.name ?? "",
-    nama_istri: item.nama_istri ?? item.wife_name ?? "",
-    alamat: item.alamat ?? item.address ?? "",
+    id: item.id_keluarga ?? "",
+    kepala_keluarga: item.kepala_keluarga ?? "",
+    nama_istri: item.nama_istri ?? "",
+    address: item.address ?? "",
     kecamatan: item.kecamatan ?? "",
     kabupaten: item.kabupaten ?? "",
     provinsi: item.provinsi ?? "",
-    phone: item.phone ?? item.whatsapp ?? "",
-    jml_anggota: item.jml_anggota ?? item.total_family ?? "",
-    instansi_id: item.instansi_id ?? item.instansi?.id ?? "",
-    instansi_name:
-      item.instansi_name ??
-      item.instansi?.instansi_name ??
-      item.instansi?.name ??
-      "",
+    phone: item.phone ?? "",
+    jml_anggota: item.jml_anggota ?? 0,
+    instansi_id: item.instansi_id ?? 0,
+    instansi_name: item.instansi_name ?? "",
     is_delete_keluarga: item.is_delete_keluarga ?? false,
-    updatedAt: item.updatedAt ?? item.updated_at ?? new Date().toISOString(),
+    created_at: item.created_at ?? new Date().toISOString(),
+    created_by: item.created_by ?? "unknown",
   };
 }
 
