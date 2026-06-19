@@ -78,7 +78,7 @@ export async function getUnitBmtById(id: string): Promise<UnitBmt> {
 
   const response = await api.get(`${bmtEndpoint}/${id}`);
 
-  return mapUnitBmtResponse(response.data);
+  return mapUnitBmtResponse(response.data.data);
 }
 
 export async function createUnitBmt(payload: UnitBmtPayload): Promise<UnitBmt> {
@@ -87,7 +87,8 @@ export async function createUnitBmt(payload: UnitBmtPayload): Promise<UnitBmt> {
       ...payload,
       id: `bmt-${Date.now()}`,
       is_delete_instansi: false,
-      updatedAt: new Date().toISOString(),
+      created_at: new Date().toISOString(),
+      created_by: "Unknown",
     };
 
     mockRows = [row, ...mockRows];
@@ -108,7 +109,7 @@ export async function updateUnitBmt(
     const nextRow = {
       ...current,
       ...payload,
-      updatedAt: new Date().toISOString(),
+      created_at: new Date().toISOString(),
     };
 
     mockRows = mockRows.map((row) => (row.id === id ? nextRow : row));

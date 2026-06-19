@@ -30,16 +30,16 @@ type AnggotaBmtFormProps = {
 
 type SelectOption = {
   label: string;
-  value: string;
+  value: string | number;
 };
 
 type SelectFieldProps = {
   label: string;
-  value: string;
+  value: string | number;
   placeholder: string;
   options: SelectOption[];
   disabled?: boolean;
-  onChange: (value: string) => void;
+  onChange: (value: string | number) => void;
 };
 
 function SelectField({
@@ -71,7 +71,7 @@ function SelectField({
     const optionHeight = 36;
     const estimatedPanelHeight = Math.min(
       preferredMaxHeight,
-      placeholderHeight + options.length * optionHeight
+      placeholderHeight + options.length * optionHeight,
     );
     const spaceBelow = window.innerHeight - rect.bottom;
     const spaceAbove = rect.top;
@@ -82,7 +82,7 @@ function SelectField({
       : window.innerHeight - rect.bottom - viewportPadding;
     const maxHeight = Math.max(
       120,
-      Math.min(preferredMaxHeight, availableHeight + (shouldOpenTop ? 28 : 0))
+      Math.min(preferredMaxHeight, availableHeight + (shouldOpenTop ? 28 : 0)),
     );
     const panelHeight = Math.min(maxHeight, estimatedPanelHeight);
 
@@ -164,42 +164,42 @@ function SelectField({
 
       {isOpen && !disabled && typeof document !== "undefined"
         ? createPortal(
-        <div
-          ref={panelRef}
-          style={panelStyle}
-          className="fixed z-50 overflow-y-auto rounded-lg border border-slate-200 bg-white py-1 shadow-lg shadow-slate-900/10"
-        >
-          <button
-            type="button"
-            onClick={() => {
-              onChange("");
-              setIsOpen(false);
-            }}
-            className="block w-full px-3.5 py-2 text-left text-sm font-medium leading-5 text-slate-500 transition hover:bg-cyan-50 hover:text-cyan-800"
-          >
-            {placeholder}
-          </button>
-          {options.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => {
-                onChange(option.value);
-                setIsOpen(false);
-              }}
-              className={[
-                "block w-full px-3.5 py-2 text-left text-sm font-medium leading-5 transition hover:bg-cyan-50 hover:text-cyan-800",
-                option.value === value
-                  ? "bg-cyan-50 text-cyan-800"
-                  : "text-slate-700",
-              ].join(" ")}
+            <div
+              ref={panelRef}
+              style={panelStyle}
+              className="fixed z-50 overflow-y-auto rounded-lg border border-slate-200 bg-white py-1 shadow-lg shadow-slate-900/10"
             >
-              {option.label}
-            </button>
-          ))}
-        </div>,
-          document.body
-        )
+              <button
+                type="button"
+                onClick={() => {
+                  onChange("");
+                  setIsOpen(false);
+                }}
+                className="block w-full px-3.5 py-2 text-left text-sm font-medium leading-5 text-slate-500 transition hover:bg-cyan-50 hover:text-cyan-800"
+              >
+                {placeholder}
+              </button>
+              {options.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => {
+                    onChange(option.value);
+                    setIsOpen(false);
+                  }}
+                  className={[
+                    "block w-full px-3.5 py-2 text-left text-sm font-medium leading-5 transition hover:bg-cyan-50 hover:text-cyan-800",
+                    option.value === value
+                      ? "bg-cyan-50 text-cyan-800"
+                      : "text-slate-700",
+                  ].join(" ")}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>,
+            document.body,
+          )
         : null}
     </div>
   );
@@ -234,8 +234,8 @@ export default function AnggotaBmtForm({
         errors.nama_istri = "Nama istri wajib diisi.";
       }
 
-      if (!formValues.alamat.trim()) {
-        errors.alamat = "Alamat wajib diisi.";
+      if (!formValues.address.trim()) {
+        errors.address = "Alamat wajib diisi.";
       }
 
       if (!formValues.provinsi) {
@@ -273,14 +273,17 @@ export default function AnggotaBmtForm({
 
   const selectedProvince = useMemo(
     () => provinceOptions.find((option) => option.name === formValues.provinsi),
-    [provinceOptions, formValues.provinsi]
+    [provinceOptions, formValues.provinsi],
   );
   const selectedRegency = useMemo(
     () => regencyOptions.find((option) => option.name === formValues.kabupaten),
-    [regencyOptions, formValues.kabupaten]
+    [regencyOptions, formValues.kabupaten],
   );
 
-  const updateField = (name: keyof AnggotaBmtPayload, value: string) => {
+  const updateField = (
+    name: keyof AnggotaBmtPayload,
+    value: string | number,
+  ) => {
     const nextValues = {
       ...formik.values,
       [name]: value,
@@ -408,11 +411,11 @@ export default function AnggotaBmtForm({
           </label>
           <input
             required
-            name="alamat"
+            name="address"
             type="text"
-            value={formValues.alamat}
+            value={formValues.address}
             placeholder="RT 01/RW 04, Desa Mawar"
-            onChange={(event) => updateField("alamat", event.target.value)}
+            onChange={(event) => updateField("address", event.target.value)}
             className="h-11 w-full rounded-lg border border-slate-300 px-3.5 text-sm outline-none transition focus:border-cyan-800 focus:ring-2 focus:ring-cyan-800/10"
           />
         </div>
@@ -428,7 +431,7 @@ export default function AnggotaBmtForm({
             value: option.name,
           }))}
           disabled={isLoadingProvinces}
-          onChange={updateProvince}
+          onChange={(value) => updateProvince(value.toString())}
         />
 
         <SelectField
@@ -442,7 +445,7 @@ export default function AnggotaBmtForm({
             value: option.name,
           }))}
           disabled={!formValues.provinsi || isLoadingRegencies}
-          onChange={updateRegency}
+          onChange={(value) => updateRegency(value.toString())}
         />
 
         <SelectField
@@ -485,7 +488,7 @@ export default function AnggotaBmtForm({
           placeholder="Pilih jumlah anggota"
           options={jumlahAnggotaOptions.map((option) => ({
             label: option,
-            value: option,
+            value: Number(option),
           }))}
           onChange={(value) => updateField("jml_anggota", value)}
         />
@@ -496,7 +499,7 @@ export default function AnggotaBmtForm({
           placeholder="Pilih unit BMT"
           options={unitOptions.map((unit) => ({
             label: unit.instansi_name,
-            value: unit.id,
+            value: Number(unit.id),
           }))}
           onChange={(value) => updateField("instansi_id", value)}
         />
