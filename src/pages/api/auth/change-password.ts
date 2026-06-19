@@ -5,7 +5,7 @@ export default async function handler(
   request: NextApiRequest,
   response: NextApiResponse,
 ) {
-  if (request.method !== "POST") {
+  if (request.method !== "PUT") {
     response.status(405).json({ message: "Method tidak valid." });
     return;
   }
@@ -18,7 +18,7 @@ export default async function handler(
       request,
       endpoint,
       {
-        method: "POST",
+        method: "PUT",
         body: request.body,
       },
     );
