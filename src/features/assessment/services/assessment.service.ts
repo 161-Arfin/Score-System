@@ -1,5 +1,9 @@
 import { assessmentParticipants, assessmentResults } from "../mocks";
-import { assessmentSections } from "../constants";
+import {
+  assessmentEndpoint,
+  assessmentSections,
+  assessmentValidatePhoneEndpoint,
+} from "../constants";
 import axios from "axios";
 import { api } from "@/lib/api";
 import type {
@@ -14,12 +18,8 @@ import type {
 const phonePattern = /^628\d{8,13}$/;
 const shouldUseMockAssessmentData =
   process.env.NEXT_PUBLIC_USE_ASSESSMENT_MOCK !== "false";
-const assessmentEndpoint = "/v1/assessment";
 const assessmentReadEndpoint = process.env.NEXT_PUBLIC_ASSESSMENT_READ_ENDPOINT;
 const assessmentScoreEndpoint = process.env.NEXT_PUBLIC_ASSESSMENT_SCORE_ENDPOINT;
-const assessmentValidatePhoneEndpoint =
-  process.env.NEXT_PUBLIC_ASSESSMENT_VALIDATE_PHONE_ENDPOINT ??
-  "/assessment/validate-phone";
 
 type BackendAssessmentValidationResponse = Partial<{
   status: "registered" | "new";

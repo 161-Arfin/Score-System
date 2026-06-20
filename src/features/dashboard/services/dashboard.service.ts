@@ -155,7 +155,7 @@ export async function getDashboardData(
   const response = await api.get(dashboardEndpoint, {
     params: {
       ...filters,
-      ...(scope?.role === "admin" && scope.instansiId
+      ...(scope?.role === "user" && scope.instansiId
         ? { instansi_id: scope.instansiId }
         : {}),
     },
