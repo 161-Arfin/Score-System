@@ -3,7 +3,7 @@ import type { AuthRole } from "@/features/auth/types";
 export const ADMIN_FALLBACK_PATH = "/anggota-bmt";
 
 export function normalizeUserRole(role?: string | null): AuthRole {
-  return role === "admin" ? "admin" : "superadmin";
+  return role === "superadmin" ? "superadmin" : "user";
 }
 
 export function canAccessPath(role: AuthRole, pathname: string) {

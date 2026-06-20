@@ -1,5 +1,8 @@
 import type { AssessmentSection } from "./types";
 
+export const assessmentEndpoint = "/v1/assessment";
+export const assessmentValidatePhoneEndpoint = "/v1/keluarga/checkbyphone";
+
 export const assessmentWelcome = {
   title: "Sakinah Score Assessment - LAZ MKU",
   description: [
