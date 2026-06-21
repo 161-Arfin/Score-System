@@ -32,6 +32,9 @@ type BackendAssessmentValidationResponse = Partial<{
   nama_istri?: string;
   address?: string;
   alamat?: string;
+  kecamatan?: string;
+  kabupaten?: string;
+  provinsi?: string;
   phone?: string;
   jml_anggota?: number | string;
   instansi_id?: number | string;
@@ -43,7 +46,7 @@ type BackendAssessmentSubmitPayload = {
   keluarga_id: number;
   instansi_id: number;
   created_by: string;
-} & Record<`${string}_score`, number>;
+} & Record<`${string}_score`, number | string>;
 
 function getResponseData<T>(response: unknown): T {
   if (response && typeof response === "object" && "data" in response) {
@@ -84,7 +87,7 @@ function normalizeValidationResponse(
     };
   }
 
-  if (status === "registered" && hasParticipantFields(source)) {
+  if (hasParticipantFields(source)) {
     return {
       status: "registered",
       participant: normalizeParticipant(source),
@@ -121,6 +124,9 @@ function normalizeParticipant(
     kepala_keluarga: payload.kepala_keluarga ?? "",
     nama_istri: payload.nama_istri ?? "",
     alamat: payload.alamat ?? backendPayload.address ?? "",
+    kecamatan: payload.kecamatan ?? "",
+    kabupaten: payload.kabupaten ?? "",
+    provinsi: payload.provinsi ?? "",
     phone: payload.phone ?? "",
     jml_anggota: String(payload.jml_anggota ?? ""),
     instansi_id: String(payload.instansi_id ?? ""),
@@ -152,6 +158,9 @@ function mapAssessmentSubmitPayload(
     {
       keluarga_id: keluargaId,
       instansi_id: instansiId,
+      q40_score: 1,
+      q41_score: 5,
+      q42_score: "Bismillah lebih baik",
       created_by: payload.participant.kepala_keluarga,
     },
   );
@@ -177,10 +186,15 @@ export async function validateAssessmentPhone(
         normalizedPhone,
       );
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.status === 404) {
-        throw new Error(
-          "Endpoint validasi No. Whatsapp belum tersedia di backend.",
-        );
+      if (
+        axios.isAxiosError(error) &&
+        (error.response?.status === 400 || error.response?.status === 404)
+      ) {
+        return {
+          status: "new",
+          phone: normalizedPhone,
+          message: "Silahkan lanjutkan untuk mengisi data keluarga anda.",
+        };
       }
 
       throw error;
