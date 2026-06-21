@@ -1,7 +1,9 @@
 import type { AnggotaBmt, AnggotaBmtListResponse } from "../types";
 
 type BackendAnggotaBmt = Partial<AnggotaBmt> & {
-  id_keluarga?: string;
+  data?: BackendAnggotaBmt;
+  id_keluarga?: number | string;
+  id?: number | string;
   kepala_keluarga?: string;
   nama_istri?: string;
   address?: string;
@@ -25,21 +27,23 @@ type BackendAnggotaBmtListResponse =
   };
 
 export function mapAnggotaBmtResponse(item: BackendAnggotaBmt): AnggotaBmt {
+  const source = item.data ?? item;
+
   return {
-    id: item.id_keluarga ?? "",
-    kepala_keluarga: item.kepala_keluarga ?? "",
-    nama_istri: item.nama_istri ?? "",
-    address: item.address ?? "",
-    kecamatan: item.kecamatan ?? "",
-    kabupaten: item.kabupaten ?? "",
-    provinsi: item.provinsi ?? "",
-    phone: item.phone ?? "",
-    jml_anggota: item.jml_anggota ?? 0,
-    instansi_id: item.instansi_id ?? 0,
-    instansi_name: item.instansi_name ?? "",
-    is_delete_keluarga: item.is_delete_keluarga ?? false,
-    created_at: item.created_at ?? new Date().toISOString(),
-    created_by: item.created_by ?? "unknown",
+    id: String(source.id_keluarga ?? source.id ?? ""),
+    kepala_keluarga: source.kepala_keluarga ?? "",
+    nama_istri: source.nama_istri ?? "",
+    address: source.address ?? "",
+    kecamatan: source.kecamatan ?? "",
+    kabupaten: source.kabupaten ?? "",
+    provinsi: source.provinsi ?? "",
+    phone: source.phone ?? "",
+    jml_anggota: source.jml_anggota ?? 0,
+    instansi_id: source.instansi_id ?? 0,
+    instansi_name: source.instansi_name ?? "",
+    is_delete_keluarga: source.is_delete_keluarga ?? false,
+    created_at: source.created_at ?? new Date().toISOString(),
+    created_by: source.created_by ?? "unknown",
   };
 }
 

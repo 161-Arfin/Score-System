@@ -4,6 +4,9 @@ export type AssessmentParticipant = {
   kepala_keluarga: string;
   nama_istri: string;
   alamat: string;
+  kecamatan?: string;
+  kabupaten?: string;
+  provinsi?: string;
   phone: string;
   jml_anggota: string;
   instansi_id: string;

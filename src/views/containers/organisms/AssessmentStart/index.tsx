@@ -1,10 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Formik, useFormik } from "formik";
+import axios from "axios";
+import {
+  getDistrictOptions,
+  getProvinceOptions,
+  getRegencyOptions,
+  type RegionOption,
+} from "@/features/anggota-bmt/services/region.service";
+import { createAnggotaBmt } from "@/features/anggota-bmt/services/anggota-bmt.service";
+import { getUnitBmtList } from "@/features/bmt/services/bmt.service";
+import type { UnitBmt } from "@/features/bmt/types";
 import {
   assessmentConfirmation,
   assessmentFamilyMemberOptions,
   assessmentSections,
-  assessmentUnitBmtOptions,
   assessmentWelcome,
 } from "@/features/assessment/constants";
 import { submitAssessment } from "@/features/assessment/services/assessment.service";
@@ -17,6 +26,12 @@ import AssessmentPhoneDialog from "@/views/components/molecules/Assessment/Asses
 import AssessmentQuestionSection from "@/views/components/molecules/Assessment/AssessmentQuestionSection";
 
 export default function AssessmentStart() {
+  const [provinceOptions, setProvinceOptions] = useState<RegionOption[]>([]);
+  const [regencyOptions, setRegencyOptions] = useState<RegionOption[]>([]);
+  const [districtOptions, setDistrictOptions] = useState<RegionOption[]>([]);
+  const [unitBmtOptions, setUnitBmtOptions] = useState<UnitBmt[]>([]);
+  const [selectedProvinceId, setSelectedProvinceId] = useState("");
+  const [selectedRegencyId, setSelectedRegencyId] = useState("");
   const [isPhoneDialogOpen, setIsPhoneDialogOpen] = useState(false);
   const [validationResult, setValidationResult] =
     useState<AssessmentValidationResult | null>(null);
@@ -25,12 +40,100 @@ export default function AssessmentStart() {
   const [isAssessmentStarted, setIsAssessmentStarted] = useState(false);
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSavingParticipant, setIsSavingParticipant] = useState(false);
+  const [participantError, setParticipantError] = useState("");
   const [isSubmittingAssessment, setIsSubmittingAssessment] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const answersFormik = useFormik<Record<string, number>>({
     initialValues: {},
     onSubmit: () => setIsSubmitted(true),
   });
+  const provinceDropdownOptions = useMemo(
+    () =>
+      provinceOptions.map((option) => ({
+        label: option.name,
+        value: option.name,
+      })),
+    [provinceOptions],
+  );
+  const regencyDropdownOptions = useMemo(
+    () =>
+      regencyOptions.map((option) => ({
+        label: option.name,
+        value: option.name,
+      })),
+    [regencyOptions],
+  );
+  const districtDropdownOptions = useMemo(
+    () =>
+      districtOptions.map((option) => ({
+        label: option.name,
+        value: option.name,
+      })),
+    [districtOptions],
+  );
+  const unitBmtDropdownOptions = useMemo(
+    () =>
+      unitBmtOptions
+        .filter((unit) => !unit.is_delete_instansi)
+        .map((unit) => ({
+          label: unit.instansi_name,
+          value: unit.id,
+        })),
+    [unitBmtOptions],
+  );
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(async () => {
+      const options = await getProvinceOptions();
+      setProvinceOptions(options);
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, []);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(async () => {
+      try {
+        const response = await getUnitBmtList();
+        setUnitBmtOptions(response.data);
+      } catch {
+        setUnitBmtOptions([]);
+      }
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, []);
+
+  useEffect(() => {
+    if (!selectedProvinceId) {
+      setRegencyOptions([]);
+      setDistrictOptions([]);
+      return;
+    }
+
+    const timeoutId = window.setTimeout(async () => {
+      setDistrictOptions([]);
+      const options = await getRegencyOptions(selectedProvinceId);
+      setRegencyOptions(options);
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [selectedProvinceId]);
+
+  useEffect(() => {
+    if (!selectedRegencyId) {
+      setDistrictOptions([]);
+      return;
+    }
+
+    const timeoutId = window.setTimeout(async () => {
+      const options = await getDistrictOptions(selectedRegencyId);
+      setDistrictOptions(options);
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [selectedRegencyId]);
 
   useEffect(() => {
     if (validationResult || isAssessmentStarted || isSubmitted) {
@@ -76,8 +179,33 @@ export default function AssessmentStart() {
           ),
         });
         setIsSubmitted(true);
-      } catch {
-        setSubmitError("Assessment belum bisa disimpan. Coba ulangi kembali.");
+      } catch (error) {
+        const responseData = axios.isAxiosError(error)
+          ? error.response?.data
+          : null;
+        const nestedData =
+          responseData &&
+          typeof responseData === "object" &&
+          "data" in responseData
+            ? responseData.data
+            : null;
+        const backendMessage =
+          responseData &&
+          typeof responseData === "object" &&
+          typeof responseData.message === "string" &&
+          !responseData.message.startsWith("External API request failed")
+            ? responseData.message
+            : nestedData &&
+                typeof nestedData === "object" &&
+                "message" in nestedData &&
+                typeof nestedData.message === "string"
+              ? nestedData.message
+              : "";
+
+        setSubmitError(
+          backendMessage ||
+            "Assessment belum bisa disimpan. Coba ulangi kembali.",
+        );
       } finally {
         setIsSubmittingAssessment(false);
       }
@@ -191,6 +319,10 @@ export default function AssessmentStart() {
                 type="button"
                 onClick={() => {
                   setValidationResult(null);
+                  setSelectedProvinceId("");
+                  setSelectedRegencyId("");
+                  setRegencyOptions([]);
+                  setDistrictOptions([]);
                   setIsPhoneDialogOpen(true);
                 }}
                 className="w-fit rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
@@ -209,6 +341,9 @@ export default function AssessmentStart() {
                 instansi_id: participant?.instansi_id ?? "",
                 instansi_name: participant?.instansi_name ?? "",
                 alamat: participant?.alamat ?? "",
+                provinsi: participant?.provinsi ?? "",
+                kabupaten: participant?.kabupaten ?? "",
+                kecamatan: participant?.kecamatan ?? "",
               }}
               validateOnMount
               validate={(formValues) => {
@@ -228,6 +363,18 @@ export default function AssessmentStart() {
                   errors.alamat = "Alamat wajib diisi.";
                 }
 
+                if (!isRegistered && !formValues.provinsi) {
+                  errors.provinsi = "Provinsi wajib dipilih.";
+                }
+
+                if (!isRegistered && !formValues.kabupaten) {
+                  errors.kabupaten = "Kabupaten wajib dipilih.";
+                }
+
+                if (!isRegistered && !formValues.kecamatan) {
+                  errors.kecamatan = "Kecamatan wajib dipilih.";
+                }
+
                 if (!formValues.jml_anggota) {
                   errors.jml_anggota = "Jumlah anggota wajib dipilih.";
                 }
@@ -238,12 +385,11 @@ export default function AssessmentStart() {
 
                 return errors;
               }}
-              onSubmit={(formValues) => {
-                const selectedUnit = assessmentUnitBmtOptions.find(
+              onSubmit={async (formValues) => {
+                const selectedUnit = unitBmtDropdownOptions.find(
                   (option) => option.value === formValues.instansi_id,
                 );
-
-                setParticipantPayload({
+                const baseParticipant = {
                   kepala_keluarga: formValues.kepala_keluarga,
                   nama_istri: formValues.nama_istri,
                   phone: formValues.phone,
@@ -252,6 +398,51 @@ export default function AssessmentStart() {
                   instansi_name:
                     formValues.instansi_name ?? selectedUnit?.label ?? "",
                   alamat: formValues.alamat,
+                  provinsi: formValues.provinsi,
+                  kabupaten: formValues.kabupaten,
+                  kecamatan: formValues.kecamatan,
+                };
+
+                if (!isRegistered) {
+                  try {
+                    setParticipantError("");
+                    setIsSavingParticipant(true);
+                    const createdParticipant = await createAnggotaBmt({
+                      kepala_keluarga: formValues.kepala_keluarga,
+                      nama_istri: formValues.nama_istri,
+                      address: formValues.alamat,
+                      provinsi: formValues.provinsi,
+                      kabupaten: formValues.kabupaten,
+                      kecamatan: formValues.kecamatan,
+                      phone: formValues.phone,
+                      jml_anggota: Number(formValues.jml_anggota),
+                      instansi_id: Number(formValues.instansi_id),
+                    });
+
+                    setParticipantPayload({
+                      ...baseParticipant,
+                      id: createdParticipant.id,
+                      keluarga_id: createdParticipant.id,
+                      instansi_id: String(createdParticipant.instansi_id),
+                      instansi_name: createdParticipant.instansi_name,
+                    });
+                    setCurrentSectionIndex(0);
+                    setIsAssessmentStarted(true);
+                  } catch {
+                    setParticipantError(
+                      "Data keluarga belum bisa disimpan. Coba ulangi kembali.",
+                    );
+                  } finally {
+                    setIsSavingParticipant(false);
+                  }
+
+                  return;
+                }
+
+                setParticipantPayload({
+                  ...baseParticipant,
+                  id: participant?.id,
+                  keluarga_id: participant?.keluarga_id,
                 });
                 setCurrentSectionIndex(0);
                 setIsAssessmentStarted(true);
@@ -374,7 +565,7 @@ export default function AssessmentStart() {
                         name="instansi_id"
                         value={formValues.instansi_id}
                         onChange={(value) => setFieldValue("instansi_id", value)}
-                        options={assessmentUnitBmtOptions}
+                        options={unitBmtDropdownOptions}
                         placeholder="Pilih unit BMT"
                       />
                     )}
@@ -405,20 +596,142 @@ export default function AssessmentStart() {
                     ) : null}
                   </label>
 
+                  <div className="block">
+                    {isRegistered ? (
+                      <>
+                        <span className="text-sm font-semibold text-slate-600">
+                          Provinsi
+                        </span>
+                        <input
+                          name="provinsi"
+                          value={formValues.provinsi}
+                          readOnly
+                          className="mt-2 h-12 w-full rounded-lg border border-slate-300 bg-slate-100 px-4 text-sm text-slate-950 outline-none"
+                        />
+                      </>
+                    ) : (
+                      <DropdownField
+                        label="Provinsi"
+                        name="provinsi"
+                        value={formValues.provinsi}
+                        onChange={(value) => {
+                          const selectedProvince = provinceOptions.find(
+                            (option) => option.name === value,
+                          );
+
+                          setSelectedProvinceId(selectedProvince?.id ?? "");
+                          setSelectedRegencyId("");
+                          setFieldValue("provinsi", value);
+                          setFieldValue("kabupaten", "");
+                          setFieldValue("kecamatan", "");
+                        }}
+                        options={provinceDropdownOptions}
+                        placeholder="Pilih provinsi"
+                      />
+                    )}
+                    {touched.provinsi && errors.provinsi ? (
+                      <p className="mt-2 text-sm font-semibold text-red-600">
+                        {errors.provinsi}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  <div className="block">
+                    {isRegistered ? (
+                      <>
+                        <span className="text-sm font-semibold text-slate-600">
+                          Kabupaten
+                        </span>
+                        <input
+                          name="kabupaten"
+                          value={formValues.kabupaten}
+                          readOnly
+                          className="mt-2 h-12 w-full rounded-lg border border-slate-300 bg-slate-100 px-4 text-sm text-slate-950 outline-none"
+                        />
+                      </>
+                    ) : (
+                      <DropdownField
+                        label="Kabupaten"
+                        name="kabupaten"
+                        value={formValues.kabupaten}
+                        onChange={(value) => {
+                          const selectedRegency = regencyOptions.find(
+                            (option) => option.name === value,
+                          );
+
+                          setSelectedRegencyId(selectedRegency?.id ?? "");
+                          setFieldValue("kabupaten", value);
+                          setFieldValue("kecamatan", "");
+                        }}
+                        options={regencyDropdownOptions}
+                        placeholder="Pilih kabupaten"
+                      />
+                    )}
+                    {touched.kabupaten && errors.kabupaten ? (
+                      <p className="mt-2 text-sm font-semibold text-red-600">
+                        {errors.kabupaten}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  <div className="block">
+                    {isRegistered ? (
+                      <>
+                        <span className="text-sm font-semibold text-slate-600">
+                          Kecamatan
+                        </span>
+                        <input
+                          name="kecamatan"
+                          value={formValues.kecamatan}
+                          readOnly
+                          className="mt-2 h-12 w-full rounded-lg border border-slate-300 bg-slate-100 px-4 text-sm text-slate-950 outline-none"
+                        />
+                      </>
+                    ) : (
+                      <DropdownField
+                        label="Kecamatan"
+                        name="kecamatan"
+                        value={formValues.kecamatan}
+                        onChange={(value) => setFieldValue("kecamatan", value)}
+                        options={districtDropdownOptions}
+                        placeholder="Pilih kecamatan"
+                      />
+                    )}
+                    {touched.kecamatan && errors.kecamatan ? (
+                      <p className="mt-2 text-sm font-semibold text-red-600">
+                        {errors.kecamatan}
+                      </p>
+                    ) : null}
+                  </div>
+
                   <div className="flex justify-end gap-3 border-t border-slate-100 pt-6 sm:col-span-2">
+                    {participantError ? (
+                      <p className="self-center text-sm font-semibold text-red-600 sm:mr-auto">
+                        {participantError}
+                      </p>
+                    ) : null}
                     <button
                       type="button"
-                      onClick={() => setValidationResult(null)}
+                      disabled={isSavingParticipant}
+                      onClick={() => {
+                        setValidationResult(null);
+                        setSelectedProvinceId("");
+                        setSelectedRegencyId("");
+                        setRegencyOptions([]);
+                        setDistrictOptions([]);
+                      }}
                       className="rounded-lg border border-slate-300 px-5 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
                     >
                       Kembali
                     </button>
                     <button
                       type="submit"
-                      disabled={!isValid}
+                      disabled={!isValid || isSavingParticipant}
                       className="rounded-lg bg-[#006B80] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#00586A] disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none"
                     >
-                      Lanjut ke Pertanyaan
+                      {isSavingParticipant
+                        ? "Menyimpan data..."
+                        : "Lanjut ke Pertanyaan"}
                     </button>
                   </div>
                 </form>
@@ -437,6 +750,10 @@ export default function AssessmentStart() {
             setCurrentSectionIndex(0);
             setIsSubmitted(false);
             setSubmitError("");
+            setSelectedProvinceId("");
+            setSelectedRegencyId("");
+            setRegencyOptions([]);
+            setDistrictOptions([]);
             answersFormik.resetForm();
           }}
         />
