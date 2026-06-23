@@ -54,12 +54,10 @@ export const mockDashboardData: DashboardData = {
     { label: "Al-Aql", value: 70 },
   ],
   monthlyTrend: [
-    { month: "2026-01", label: "Jan", value: 65 },
-    { month: "2026-02", label: "Feb", value: 70 },
-    { month: "2026-03", label: "Mar", value: 75 },
-    { month: "2026-04", label: "Apr", value: 75 },
-    { month: "2026-05", label: "Mei", value: 80 },
-    { month: "2026-06", label: "Jun", value: 80 },
+    { month: "2026-Q1", label: "Q1", value: 70 },
+    { month: "2026-Q2", label: "Q2", value: 75 },
+    { month: "2026-Q3", label: "Q3", value: 80 },
+    { month: "2026-Q4", label: "Q4", value: 82 },
   ],
   unitPerformanceRows: [
     {

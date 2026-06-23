@@ -1,6 +1,8 @@
 import { assessmentParticipants, assessmentResults } from "../mocks";
 import {
   assessmentEndpoint,
+  assessmentReadEndpoint,
+  assessmentScoreReadEndpoint,
   assessmentSections,
   assessmentValidatePhoneEndpoint,
 } from "../constants";
@@ -18,8 +20,6 @@ import type {
 const phonePattern = /^628\d{8,13}$/;
 const shouldUseMockAssessmentData =
   process.env.NEXT_PUBLIC_USE_ASSESSMENT_MOCK !== "false";
-const assessmentReadEndpoint = process.env.NEXT_PUBLIC_ASSESSMENT_READ_ENDPOINT;
-const assessmentScoreEndpoint = process.env.NEXT_PUBLIC_ASSESSMENT_SCORE_ENDPOINT;
 
 type BackendAssessmentValidationResponse = Partial<{
   status: "registered" | "new";
@@ -47,6 +47,49 @@ type BackendAssessmentSubmitPayload = {
   instansi_id: number;
   created_by: string;
 } & Record<`${string}_score`, number | string>;
+
+type BackendAssessmentReadRow = Partial<{
+  id: number | string;
+  id_assessment: number | string;
+  keluarga_id: number | string;
+  kepala_keluarga: string;
+  nama_istri: string;
+  address: string;
+  alamat: string;
+  phone: string;
+  instansi_name: string;
+  created_at: string;
+  createdAt: string;
+  is_delete_assessment: boolean;
+}> &
+  Record<`${string}_score`, number | string | undefined>;
+
+type BackendAssessmentScoreRow = Partial<{
+  id: number | string;
+  id_score_assessment: number | string;
+  assessment_id: number | string;
+  keluarga_id: number | string;
+  kepala_keluarga: string;
+  nama_istri: string;
+  address: string;
+  phone: string;
+  instansi_name: string;
+  addin_score: number | string;
+  annafs_score: number | string;
+  alaql_score: number | string;
+  annasl_score: number | string;
+  almal_score: number | string;
+  total_sakinah_score: number | string;
+  tier_name: string;
+  addin_status: number | string;
+  annafs_status: number | string;
+  alaql_status: number | string;
+  annasl_status: number | string;
+  almal_status: number | string;
+  created_at: string;
+  createdAt: string;
+  is_delete_score_assessment: boolean;
+}>;
 
 function getResponseData<T>(response: unknown): T {
   if (response && typeof response === "object" && "data" in response) {
@@ -166,6 +209,112 @@ function mapAssessmentSubmitPayload(
   );
 }
 
+function mapAssessmentReadRow(row: BackendAssessmentReadRow): AssessmentResult {
+  return {
+    id: String(row.id_assessment ?? row.id ?? ""),
+    kepala_keluarga: row.kepala_keluarga ?? "",
+    nama_istri: row.nama_istri ?? "",
+    alamat: row.address ?? row.alamat ?? "",
+    phone: row.phone ?? "",
+    instansi_name: row.instansi_name ?? "",
+    source: "Link Form",
+    submittedAt: row.created_at ?? row.createdAt ?? "",
+    answers: assessmentSections.flatMap((section) =>
+      section.questions.map((question) => ({
+        questionId: question.id,
+        score: Number(row[`${question.id}_score`] ?? 0),
+      })),
+    ),
+  };
+}
+
+function mapAssessmentReadRows(rows: BackendAssessmentReadRow[]) {
+  return rows
+    .filter((row) => !row.is_delete_assessment)
+    .map((row) => mapAssessmentReadRow(row));
+}
+
+function normalizeBackendStatus(status: number | string | undefined) {
+  const normalizedStatus = Number(status);
+
+  if (!Number.isFinite(normalizedStatus)) {
+    return status ? String(status) : "-";
+  }
+
+  if (normalizedStatus >= 4) return "Kuat";
+  if (normalizedStatus === 3) return "Cukup";
+  if (normalizedStatus === 2) return "Perlu Penguatan";
+  if (normalizedStatus === 1) return "Prioritas";
+
+  return "-";
+}
+
+function getHighestDimension(row: AssessmentScoreResult) {
+  const dimensions = [
+    { label: "Hifz Ad-Din", value: row.hifzAdDinScore },
+    { label: "Hifz An-Nafs", value: row.hifzAnNafsScore },
+    { label: "Hifz Al-Aql", value: row.hifzAlAqlScore },
+    { label: "Hifz An-Nasl", value: row.hifzAnNaslScore },
+    { label: "Hifz Al-Mal", value: row.hifzAlMalScore },
+  ];
+
+  return [...dimensions].sort((first, second) => second.value - first.value)[0]
+    ?.label ?? "-";
+}
+
+function getLowestDimension(row: AssessmentScoreResult) {
+  const dimensions = [
+    { label: "Hifz Ad-Din", value: row.hifzAdDinScore },
+    { label: "Hifz An-Nafs", value: row.hifzAnNafsScore },
+    { label: "Hifz Al-Aql", value: row.hifzAlAqlScore },
+    { label: "Hifz An-Nasl", value: row.hifzAnNaslScore },
+    { label: "Hifz Al-Mal", value: row.hifzAlMalScore },
+  ];
+
+  return [...dimensions].sort((first, second) => first.value - second.value)[0]
+    ?.label ?? "-";
+}
+
+function mapAssessmentScoreRow(
+  row: BackendAssessmentScoreRow,
+): AssessmentScoreResult {
+  const mappedRow: AssessmentScoreResult = {
+    id: String(row.id_score_assessment ?? row.id ?? ""),
+    timestamp: row.created_at ?? row.createdAt ?? "",
+    kepala_keluarga: row.kepala_keluarga ?? "",
+    nama_istri: row.nama_istri ?? "",
+    phone: row.phone ?? "",
+    instansi_name: row.instansi_name ?? "",
+    tanggal_assessment: row.created_at ?? row.createdAt ?? "",
+    hifzAdDinScore: Number(row.addin_score ?? 0),
+    hifzAnNafsScore: Number(row.annafs_score ?? 0),
+    hifzAlAqlScore: Number(row.alaql_score ?? 0),
+    hifzAnNaslScore: Number(row.annasl_score ?? 0),
+    hifzAlMalScore: Number(row.almal_score ?? 0),
+    totalSakinahScore: Number(row.total_sakinah_score ?? 0),
+    tier: row.tier_name ?? "-",
+    statusAdDin: normalizeBackendStatus(row.addin_status),
+    statusAnNafs: normalizeBackendStatus(row.annafs_status),
+    statusAlAql: normalizeBackendStatus(row.alaql_status),
+    statusAnNasl: normalizeBackendStatus(row.annasl_status),
+    statusAlMal: normalizeBackendStatus(row.almal_status),
+    dimensiTertinggi: "-",
+    dimensiTerendah: "-",
+  };
+
+  return {
+    ...mappedRow,
+    dimensiTertinggi: getHighestDimension(mappedRow),
+    dimensiTerendah: getLowestDimension(mappedRow),
+  };
+}
+
+function mapAssessmentScoreRows(rows: BackendAssessmentScoreRow[]) {
+  return rows
+    .filter((row) => !row.is_delete_score_assessment)
+    .map((row) => mapAssessmentScoreRow(row));
+}
+
 export async function validateAssessmentPhone(
   phone: string,
 ): Promise<AssessmentValidationResult> {
@@ -226,13 +375,11 @@ export async function validateAssessmentPhone(
 
 export async function getAssessmentResults(): Promise<AssessmentResult[]> {
   if (!shouldUseMockAssessmentData) {
-    if (!assessmentReadEndpoint) {
-      return [];
-    }
-
     const response = await api.get(assessmentReadEndpoint);
 
-    return getResponseData<AssessmentResult[]>(response);
+    return mapAssessmentReadRows(
+      getResponseData<BackendAssessmentReadRow[]>(response),
+    );
   }
 
   return assessmentResults;
@@ -326,13 +473,11 @@ export async function getAssessmentScoreResults(): Promise<
   AssessmentScoreResult[]
 > {
   if (!shouldUseMockAssessmentData) {
-    if (!assessmentScoreEndpoint) {
-      return [];
-    }
+    const response = await api.get(assessmentScoreReadEndpoint);
 
-    const response = await api.get(assessmentScoreEndpoint);
-
-    return getResponseData<AssessmentScoreResult[]>(response);
+    return mapAssessmentScoreRows(
+      getResponseData<BackendAssessmentScoreRow[]>(response),
+    );
   }
 
   return assessmentResults.map((row) => {
