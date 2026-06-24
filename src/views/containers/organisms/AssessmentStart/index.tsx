@@ -107,6 +107,7 @@ export default function AssessmentStart() {
 
   useEffect(() => {
     if (!selectedProvinceId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRegencyOptions([]);
       setDistrictOptions([]);
       return;
@@ -123,6 +124,7 @@ export default function AssessmentStart() {
 
   useEffect(() => {
     if (!selectedRegencyId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDistrictOptions([]);
       return;
     }
@@ -159,7 +161,7 @@ export default function AssessmentStart() {
     const isFirstSection = currentSectionIndex === 0;
     const isLastSection = currentSectionIndex === assessmentSections.length - 1;
     const isCurrentSectionComplete = currentSection.questions.every(
-      (question) => answersFormik.values[question.id] !== undefined
+      (question) => answersFormik.values[question.id] !== undefined,
     );
     const handleSubmitAssessment = async () => {
       if (!participantPayload || !isCurrentSectionComplete) {
@@ -351,8 +353,7 @@ export default function AssessmentStart() {
                   {};
 
                 if (!formValues.kepala_keluarga.trim()) {
-                  errors.kepala_keluarga =
-                    "Nama kepala keluarga wajib diisi.";
+                  errors.kepala_keluarga = "Nama kepala keluarga wajib diisi.";
                 }
 
                 if (!formValues.nama_istri.trim()) {
@@ -564,7 +565,9 @@ export default function AssessmentStart() {
                         label="Unit BMT"
                         name="instansi_id"
                         value={formValues.instansi_id}
-                        onChange={(value) => setFieldValue("instansi_id", value)}
+                        onChange={(value) =>
+                          setFieldValue("instansi_id", value)
+                        }
                         options={unitBmtDropdownOptions}
                         placeholder="Pilih unit BMT"
                       />
