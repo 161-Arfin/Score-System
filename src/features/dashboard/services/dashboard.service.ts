@@ -1,7 +1,10 @@
 import { api } from "@/lib/api";
 import type { AuthRole } from "@/features/auth/types";
-import { dashboardEndpoint, defaultDashboardFilters } from "../constants";
-import { mapDashboardResponse } from "../adapters/dashboard.adapter";
+import {
+  dashboardStatisticEndpoint,
+  defaultDashboardFilters,
+} from "../constants";
+import { mapDashboardStatisticResponse } from "../adapters/dashboard.adapter";
 import { mockDashboardData } from "../mocks";
 import type {
   DashboardData,
@@ -191,6 +194,23 @@ function applyDashboardUnitFilter(
   };
 }
 
+function getStatisticParams(
+  filters: DashboardFilters,
+  scope?: DashboardAccessScope,
+) {
+  const params: Record<string, string> = {};
+
+  if (scope?.role === "user" && scope.instansiId) {
+    params.instansi_id = scope.instansiId;
+  }
+
+  if (scope?.role === "superadmin" && filters.unitId !== "all") {
+    params.instansi_id = filters.unitId;
+  }
+
+  return params;
+}
+
 export async function getDashboardData(
   filters: DashboardFilters = defaultDashboardFilters,
   scope?: DashboardAccessScope,
@@ -205,14 +225,14 @@ export async function getDashboardData(
     );
   }
 
-  const response = await api.get(dashboardEndpoint, {
-    params: {
-      ...filters,
-      ...(scope?.role === "user" && scope.instansiId
-        ? { instansi_id: scope.instansiId }
-        : {}),
-    },
+  const response = await api.get(dashboardStatisticEndpoint, {
+    params: getStatisticParams(filters, scope),
   });
+  const statisticData = mapDashboardStatisticResponse(response.data);
 
-  return applyDashboardUnitFilter(mapDashboardResponse(response.data), filters);
+  return {
+    ...mockDashboardData,
+    ...statisticData,
+    filters,
+  };
 }

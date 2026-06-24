@@ -105,6 +105,95 @@ function getResponseData<T>(response: unknown): T {
   return response as T;
 }
 
+function isObjectPayload(value: unknown): value is Record<string, unknown> {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value));
+}
+
+function getNestedPayload(payload: unknown): unknown {
+  if (!isObjectPayload(payload) || !("data" in payload)) {
+    return payload;
+  }
+
+  const data = payload.data;
+
+  if (isObjectPayload(data) && "data" in data) {
+    return data.data;
+  }
+
+  return data;
+}
+
+function getBackendErrorMessage(error: unknown) {
+  if (!axios.isAxiosError(error)) {
+    return "";
+  }
+
+  const responseData = error.response?.data;
+
+  if (!responseData || typeof responseData !== "object") {
+    return error.message;
+  }
+
+  const nestedPayload = getNestedPayload(responseData);
+
+  if (
+    isObjectPayload(nestedPayload) &&
+    "error" in nestedPayload &&
+    typeof nestedPayload.error === "string"
+  ) {
+    return nestedPayload.error;
+  }
+
+  if (
+    isObjectPayload(nestedPayload) &&
+    "message" in nestedPayload &&
+    typeof nestedPayload.message === "string"
+  ) {
+    return nestedPayload.message;
+  }
+
+  if (
+    "error" in responseData &&
+    typeof responseData.error === "string"
+  ) {
+    return responseData.error;
+  }
+
+  if (
+    "message" in responseData &&
+    typeof responseData.message === "string"
+  ) {
+    return responseData.message;
+  }
+
+  return error.message;
+}
+
+function getValidationPayloadFromError(
+  error: unknown,
+): BackendAssessmentValidationResponse | null {
+  if (!axios.isAxiosError(error)) {
+    return null;
+  }
+
+  const payload = getNestedPayload(error.response?.data);
+
+  if (!isObjectPayload(payload)) {
+    return null;
+  }
+
+  return payload as BackendAssessmentValidationResponse;
+}
+
+function isAlreadyAssessedMessage(message: string) {
+  const normalizedMessage = message.toLowerCase();
+
+  return (
+    normalizedMessage.includes("sudah") &&
+    normalizedMessage.includes("assessment")
+  );
+}
+
 function normalizeValidationResponse(
   payload: BackendAssessmentValidationResponse,
   phone: string,
@@ -231,7 +320,18 @@ function mapAssessmentReadRow(row: BackendAssessmentReadRow): AssessmentResult {
 function mapAssessmentReadRows(rows: BackendAssessmentReadRow[]) {
   return rows
     .filter((row) => !row.is_delete_assessment)
-    .map((row) => mapAssessmentReadRow(row));
+    .map((row) => mapAssessmentReadRow(row))
+    .sort((first, second) => getAssessmentTime(second) - getAssessmentTime(first));
+}
+
+function getAssessmentTime(row: AssessmentResult) {
+  const timestamp = new Date(row.submittedAt).getTime();
+
+  if (Number.isFinite(timestamp)) {
+    return timestamp;
+  }
+
+  return Number(row.id) || 0;
 }
 
 function normalizeBackendStatus(status: number | string | undefined) {
@@ -312,7 +412,21 @@ function mapAssessmentScoreRow(
 function mapAssessmentScoreRows(rows: BackendAssessmentScoreRow[]) {
   return rows
     .filter((row) => !row.is_delete_score_assessment)
-    .map((row) => mapAssessmentScoreRow(row));
+    .map((row) => mapAssessmentScoreRow(row))
+    .sort(
+      (first, second) =>
+        getAssessmentScoreTime(second) - getAssessmentScoreTime(first),
+    );
+}
+
+function getAssessmentScoreTime(row: AssessmentScoreResult) {
+  const timestamp = new Date(row.timestamp).getTime();
+
+  if (Number.isFinite(timestamp)) {
+    return timestamp;
+  }
+
+  return Number(row.id) || 0;
 }
 
 export async function validateAssessmentPhone(
@@ -335,6 +449,26 @@ export async function validateAssessmentPhone(
         normalizedPhone,
       );
     } catch (error) {
+      const backendMessage = getBackendErrorMessage(error);
+      const validationPayload = getValidationPayloadFromError(error);
+
+      if (
+        validationPayload &&
+        (hasParticipantFields(validationPayload) ||
+          validationPayload.status === "registered" ||
+          validationPayload.participant)
+      ) {
+        return normalizeValidationResponse(validationPayload, normalizedPhone);
+      }
+
+      if (
+        axios.isAxiosError(error) &&
+        error.response?.status === 400 &&
+        isAlreadyAssessedMessage(backendMessage)
+      ) {
+        throw new Error(backendMessage);
+      }
+
       if (
         axios.isAxiosError(error) &&
         (error.response?.status === 400 || error.response?.status === 404)
@@ -382,7 +516,9 @@ export async function getAssessmentResults(): Promise<AssessmentResult[]> {
     );
   }
 
-  return assessmentResults;
+  return [...assessmentResults].sort(
+    (first, second) => getAssessmentTime(second) - getAssessmentTime(first),
+  );
 }
 
 export async function submitAssessment(
@@ -529,5 +665,8 @@ export async function getAssessmentScoreResults(): Promise<
       dimensiTerendah:
         sortedDimensions[sortedDimensions.length - 1]?.label ?? "-",
     };
-  });
+  }).sort(
+    (first, second) =>
+      getAssessmentScoreTime(second) - getAssessmentScoreTime(first),
+  );
 }

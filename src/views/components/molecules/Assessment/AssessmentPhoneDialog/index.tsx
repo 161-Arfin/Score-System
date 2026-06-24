@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useFormik } from "formik";
+import { CheckCircle2 } from "lucide-react";
 import { validateAssessmentPhone } from "@/features/assessment/services/assessment.service";
 import type { AssessmentValidationResult } from "@/features/assessment/types";
 
@@ -15,6 +16,7 @@ export default function AssessmentPhoneDialog({
   onValidated,
 }: AssessmentPhoneDialogProps) {
   const [error, setError] = useState("");
+  const [noticeMessage, setNoticeMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const formik = useFormik({
     initialValues: {
@@ -39,11 +41,17 @@ export default function AssessmentPhoneDialog({
         onValidated(result);
         handleClose();
       } catch (validationError) {
-        setError(
+        const message =
           validationError instanceof Error
             ? validationError.message
-            : "Nomor Whatsapp tidak valid."
-        );
+            : "Nomor Whatsapp tidak valid.";
+
+        if (message.toLowerCase().includes("sudah")) {
+          setNoticeMessage(message);
+          return;
+        }
+
+        setError(message);
       } finally {
         setIsSubmitting(false);
       }
@@ -56,10 +64,42 @@ export default function AssessmentPhoneDialog({
 
   const handleClose = () => {
     setError("");
+    setNoticeMessage("");
     setIsSubmitting(false);
     formik.resetForm();
     onClose();
   };
+
+  if (noticeMessage) {
+    return (
+      <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/40 px-4">
+        <div className="w-full max-w-md overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_24px_64px_rgba(15,23,42,0.18)]">
+          <div className="px-6 pb-6 pt-7">
+            <h2 className="text-2xl font-bold tracking-normal text-slate-950">
+              Assessment sudah tercatat
+            </h2>
+            <p className="mt-3 text-base leading-7 text-slate-600">
+              Data untuk nomor ini sudah masuk pada periode assessment berjalan.
+            </p>
+            <div className="mt-5 rounded border border-cyan-100 bg-cyan-50/70 px-4 py-4">
+              <p className="text-base font-semibold leading-7 text-slate-800 first-letter:uppercase">
+                {noticeMessage}
+              </p>
+            </div>
+          </div>
+          <div className="flex justify-end border-t border-slate-100 bg-slate-50/60 px-6 py-4">
+            <button
+              type="button"
+              onClick={() => setNoticeMessage("")}
+              className="rounded-lg bg-[#006B80] px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#00586A] focus:outline-none focus:ring-2 focus:ring-[#006B80]/20"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/40 px-4">
