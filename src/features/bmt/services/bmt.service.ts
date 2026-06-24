@@ -16,10 +16,26 @@ let mockRows = [...mockUnitBmtRows];
 
 const shouldUseMockBmtData = process.env.NEXT_PUBLIC_USE_BMT_MOCK !== "false";
 
+function getRowTimestamp(row: UnitBmt) {
+  const timestamp = new Date(row.created_at).getTime();
+
+  if (Number.isFinite(timestamp)) {
+    return timestamp;
+  }
+
+  return Number(row.id) || 0;
+}
+
+function sortNewestRows(rows: UnitBmt[]) {
+  return [...rows].sort((first, second) => {
+    return getRowTimestamp(second) - getRowTimestamp(first);
+  });
+}
+
 function filterRows(filters: UnitBmtFilters) {
   const keyword = filters.search.trim().toLowerCase();
 
-  return mockRows.filter((row) => {
+  return sortNewestRows(mockRows.filter((row) => {
     const matchesKeyword =
       !keyword ||
       [row.instansi_name, row.instansi_address, row.instansi_phone]
@@ -28,7 +44,7 @@ function filterRows(filters: UnitBmtFilters) {
         .includes(keyword);
 
     return matchesKeyword && !row.is_delete_instansi;
-  });
+  }));
 }
 
 export async function getUnitBmtList(
@@ -47,12 +63,19 @@ export async function getUnitBmtList(
     params: filters,
   });
 
-  return mapUnitBmtListResponse(response.data);
+  const result = mapUnitBmtListResponse(response.data);
+
+  return {
+    ...result,
+    data: sortNewestRows(result.data),
+  };
 }
 
 export async function getDeletedUnitBmtList(): Promise<UnitBmtListResponse> {
   if (shouldUseMockBmtData) {
-    const data = mockRows.filter((row) => row.is_delete_instansi);
+    const data = sortNewestRows(
+      mockRows.filter((row) => row.is_delete_instansi),
+    );
 
     return {
       data,
@@ -62,7 +85,12 @@ export async function getDeletedUnitBmtList(): Promise<UnitBmtListResponse> {
 
   const response = await api.get(`${bmtEndpoint}/recycle-bin`);
 
-  return mapUnitBmtListResponse(response.data);
+  const result = mapUnitBmtListResponse(response.data);
+
+  return {
+    ...result,
+    data: sortNewestRows(result.data),
+  };
 }
 
 export async function getUnitBmtById(id: string): Promise<UnitBmt> {

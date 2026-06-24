@@ -27,3 +27,4 @@ export const defaultDashboardFilters: DashboardFilters = {
 };
 
 export const dashboardEndpoint = "/dashboard";
+export const dashboardStatisticEndpoint = "/v1/auth/statistik";
