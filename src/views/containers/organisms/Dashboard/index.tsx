@@ -2,7 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import { defaultDashboardFilters } from "@/features/dashboard/constants";
 import { getDashboardData } from "@/features/dashboard/services/dashboard.service";
-import type { DashboardData } from "@/features/dashboard/types";
+import type {
+  DashboardData,
+  DashboardFilters as DashboardFilterValues,
+} from "@/features/dashboard/types";
 import { normalizeUserRole } from "@/lib/auth/permissions";
 import BottomInsightPanel from "@/views/components/molecules/Dashboard/BottomInsightPanel";
 import DashboardFilters from "@/views/components/molecules/Dashboard/DashboardFilters";
@@ -17,7 +20,13 @@ export default function Dashboard() {
   const { data: session } = useSession();
   const userRole = normalizeUserRole(session?.user?.role);
   const isSuperAdmin = userRole === "superadmin";
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
+    null,
+  );
+  const [selectedUnitId, setSelectedUnitId] = useState("all");
+  const [unitFilterOptions, setUnitFilterOptions] = useState<
+    Array<{ label: string; value: string }>
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -29,13 +38,27 @@ export default function Dashboard() {
         setIsLoading(true);
         setErrorMessage("");
 
-        const data = await getDashboardData(defaultDashboardFilters, {
+        const filters: DashboardFilterValues = {
+          ...defaultDashboardFilters,
+          unitId: selectedUnitId,
+        };
+        const data = await getDashboardData(filters, {
           role: userRole,
           instansiId: session?.user?.instansi_id,
         });
 
         if (isMounted) {
           setDashboardData(data);
+          setUnitFilterOptions((currentOptions) => {
+            if (currentOptions.length > 0 || selectedUnitId !== "all") {
+              return currentOptions;
+            }
+
+            return data.unitPerformanceRows.map((unit) => ({
+              label: unit.unitName,
+              value: unit.unitId,
+            }));
+          });
         }
       } catch {
         if (isMounted) {
@@ -53,15 +76,15 @@ export default function Dashboard() {
     return () => {
       isMounted = false;
     };
-  }, [session?.user?.instansi_id, userRole]);
+  }, [selectedUnitId, session?.user?.instansi_id, userRole]);
 
   const riskSummary = useMemo(() => {
-    const bronzeTotal = dashboardData?.familyScoreRows.filter(
-      (row) => row.tier === "Perunggu"
-    ).length ?? 0;
-    const redTotal = dashboardData?.familyScoreRows.filter(
-      (row) => row.tier === "Merah"
-    ).length ?? 0;
+    const bronzeTotal =
+      dashboardData?.familyScoreRows.filter((row) => row.tier === "Perunggu")
+        .length ?? 0;
+    const redTotal =
+      dashboardData?.familyScoreRows.filter((row) => row.tier === "Merah")
+        .length ?? 0;
 
     return {
       bronzeTotal,
@@ -111,6 +134,14 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {isSuperAdmin ? (
+        <DashboardFilters
+          selectedUnitId={selectedUnitId}
+          unitOptions={unitFilterOptions}
+          onUnitChange={setSelectedUnitId}
+        />
+      ) : null}
+
       <DashboardSummary stats={dashboardData.stats} />
 
       <div className="grid gap-5 xl:grid-cols-2">
@@ -121,11 +152,10 @@ export default function Dashboard() {
       <MonthlyTrendChart trends={dashboardData.monthlyTrend} />
       {isSuperAdmin ? (
         <>
-          <UnitPerformanceTable rows={dashboardData.unitPerformanceRows} />
-          <DashboardFilters filters={dashboardData.filterOptions} />
+          {/* <UnitPerformanceTable rows={dashboardData.unitPerformanceRows} /> */}
         </>
       ) : null}
-      <FamilyScoreTable rows={dashboardData.familyScoreRows} />
+      {/* <FamilyScoreTable rows={dashboardData.familyScoreRows} /> */}
       <BottomInsightPanel
         bronzeTotal={riskSummary.bronzeTotal}
         focusDimensions={dashboardData.focusDimensions}
