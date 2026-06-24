@@ -17,9 +17,27 @@ let mockRows = [...mockAnggotaBmtRows];
 const shouldUseMockAnggotaBmtData =
   process.env.NEXT_PUBLIC_USE_ANGGOTA_BMT_MOCK !== "false";
 
+function getRowTimestamp(row: AnggotaBmt) {
+  const timestamp = new Date(row.created_at).getTime();
+
+  if (Number.isFinite(timestamp)) {
+    return timestamp;
+  }
+
+  return Number(row.id) || 0;
+}
+
+function sortNewestRows(rows: AnggotaBmt[]) {
+  return [...rows].sort((first, second) => {
+    return getRowTimestamp(second) - getRowTimestamp(first);
+  });
+}
+
 export async function getAnggotaBmtList(): Promise<AnggotaBmtListResponse> {
   if (shouldUseMockAnggotaBmtData) {
-    const data = mockRows.filter((row) => !row.is_delete_keluarga);
+    const data = sortNewestRows(
+      mockRows.filter((row) => !row.is_delete_keluarga),
+    );
 
     return {
       data,
@@ -29,12 +47,19 @@ export async function getAnggotaBmtList(): Promise<AnggotaBmtListResponse> {
 
   const response = await api.get(anggotaBmtEndpoint);
 
-  return mapAnggotaBmtListResponse(response.data);
+  const result = mapAnggotaBmtListResponse(response.data);
+
+  return {
+    ...result,
+    data: sortNewestRows(result.data),
+  };
 }
 
 export async function getDeletedAnggotaBmtList(): Promise<AnggotaBmtListResponse> {
   if (shouldUseMockAnggotaBmtData) {
-    const data = mockRows.filter((row) => row.is_delete_keluarga);
+    const data = sortNewestRows(
+      mockRows.filter((row) => row.is_delete_keluarga),
+    );
 
     return {
       data,
@@ -44,7 +69,12 @@ export async function getDeletedAnggotaBmtList(): Promise<AnggotaBmtListResponse
 
   const response = await api.get(`${anggotaBmtEndpoint}/recycle-bin`);
 
-  return mapAnggotaBmtListResponse(response.data);
+  const result = mapAnggotaBmtListResponse(response.data);
+
+  return {
+    ...result,
+    data: sortNewestRows(result.data),
+  };
 }
 
 export async function getAnggotaBmtById(id: string): Promise<AnggotaBmt> {
