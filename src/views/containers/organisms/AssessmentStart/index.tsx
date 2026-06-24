@@ -159,7 +159,7 @@ export default function AssessmentStart() {
     const isFirstSection = currentSectionIndex === 0;
     const isLastSection = currentSectionIndex === assessmentSections.length - 1;
     const isCurrentSectionComplete = currentSection.questions.every(
-      (question) => answersFormik.values[question.id] !== undefined
+      (question) => answersFormik.values[question.id] !== undefined,
     );
     const handleSubmitAssessment = async () => {
       if (!participantPayload || !isCurrentSectionComplete) {
@@ -351,8 +351,7 @@ export default function AssessmentStart() {
                   {};
 
                 if (!formValues.kepala_keluarga.trim()) {
-                  errors.kepala_keluarga =
-                    "Nama kepala keluarga wajib diisi.";
+                  errors.kepala_keluarga = "Nama kepala keluarga wajib diisi.";
                 }
 
                 if (!formValues.nama_istri.trim()) {
