@@ -138,16 +138,69 @@ function applyDashboardAccessScope(
   };
 }
 
+function applyDashboardUnitFilter(
+  data: DashboardData,
+  filters: DashboardFilters,
+): DashboardData {
+  if (filters.unitId === "all") {
+    return data;
+  }
+
+  const unitAliases = getUnitAliases(filters.unitId);
+  const familyScoreRows = data.familyScoreRows.filter((row) =>
+    isFamilyInUnit(row, unitAliases),
+  );
+  const unitPerformanceRows = data.unitPerformanceRows.filter((row) =>
+    unitAliases.includes(row.unitId.toLowerCase()) ||
+    unitAliases.includes(row.unitName.toLowerCase()),
+  );
+  const averageScore = getAverageScore(familyScoreRows);
+
+  return {
+    ...data,
+    filters,
+    stats: data.stats.map((stat) => {
+      if (stat.key === "totalFamilies") {
+        return { ...stat, value: String(familyScoreRows.length) };
+      }
+
+      if (stat.key === "averageScore") {
+        return { ...stat, value: String(averageScore) };
+      }
+
+      if (stat.key === "berlian") {
+        return { ...stat, value: String(getTierCount(familyScoreRows, "Berlian")) };
+      }
+
+      if (stat.key === "emas") {
+        return { ...stat, value: String(getTierCount(familyScoreRows, "Emas")) };
+      }
+
+      if (stat.key === "perak") {
+        return { ...stat, value: String(getTierCount(familyScoreRows, "Perak")) };
+      }
+
+      return stat;
+    }),
+    tierDistribution: tierOrder.map((tier) => ({
+      tier,
+      value: getTierPercentage(familyScoreRows, tier),
+    })),
+    unitPerformanceRows,
+    familyScoreRows,
+  };
+}
+
 export async function getDashboardData(
   filters: DashboardFilters = defaultDashboardFilters,
   scope?: DashboardAccessScope,
 ): Promise<DashboardData> {
   if (shouldUseMockDashboardData) {
     return applyDashboardAccessScope(
-      {
+      applyDashboardUnitFilter({
         ...mockDashboardData,
         filters,
-      },
+      }, filters),
       scope,
     );
   }
@@ -161,5 +214,5 @@ export async function getDashboardData(
     },
   });
 
-  return mapDashboardResponse(response.data);
+  return applyDashboardUnitFilter(mapDashboardResponse(response.data), filters);
 }

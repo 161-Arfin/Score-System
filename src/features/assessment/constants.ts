@@ -1,6 +1,8 @@
 import type { AssessmentSection } from "./types";
 
 export const assessmentEndpoint = "/v1/assessment";
+export const assessmentReadEndpoint = "/v1/auth/assessment";
+export const assessmentScoreReadEndpoint = "/v1/auth/score-assessment";
 export const assessmentValidatePhoneEndpoint = "/v1/keluarga/checkbyphone";
 
 export const assessmentWelcome = {
