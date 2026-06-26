@@ -1,5 +1,5 @@
 import type { NextPage } from "next";
-import AssessmentStartPage from "@/views/containers/pages/AssessmentStart";
+import AssessmentStart from "@/views/containers/organisms/AssessmentStart";
 import Footer from "@/views/containers/templates/Footer";
 import Navbar from "@/views/containers/templates/Navbar";
 
@@ -16,9 +16,10 @@ const AssessmentStartRoute: PublicAssessmentPage = () => {
       <Navbar
         constrained
         showMobileMenu={false}
+        showProfileMenu={false}
         title="Sakinah Score Assessment"
       />
-      <AssessmentStartPage />
+      <AssessmentStart />
       <Footer />
     </div>
   );
