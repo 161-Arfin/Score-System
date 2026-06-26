@@ -8,6 +8,7 @@ import {
 import type { UnitBmt } from "@/features/bmt/types";
 import EmptyState from "@/views/components/atoms/EmptyState";
 import TableActionButton from "@/views/components/atoms/TableActionButton";
+import TableSkeleton from "@/views/components/atoms/TableSkeleton";
 
 export default function BmtRecycleBinPage() {
   const [rows, setRows] = useState<UnitBmt[]>([]);
@@ -78,11 +79,7 @@ export default function BmtRecycleBinPage() {
       </div>
 
       {isLoading ? (
-        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="text-sm font-semibold text-slate-950">
-            Memuat recycle bin...
-          </p>
-        </div>
+        <TableSkeleton columns={5} minWidthClassName="min-w-[760px]" />
       ) : rows.length ? (
         <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
           <div className="overflow-x-auto">

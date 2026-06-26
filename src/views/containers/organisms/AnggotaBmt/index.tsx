@@ -4,6 +4,7 @@ import {
   getAnggotaBmtList,
 } from "@/features/anggota-bmt/services/anggota-bmt.service";
 import type { AnggotaBmt } from "@/features/anggota-bmt/types";
+import TableSkeleton from "@/views/components/atoms/TableSkeleton";
 import AnggotaBmtDeleteDialog from "@/views/components/molecules/AnggotaBmt/AnggotaBmtDeleteDialog";
 import AnggotaBmtTable from "@/views/components/molecules/AnggotaBmt/AnggotaBmtTable";
 
@@ -79,14 +80,7 @@ export default function AnggotaBmtContainer() {
       ) : null}
 
       {isLoading ? (
-        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="text-sm font-semibold text-slate-950">
-            Memuat data Anggota BMT...
-          </p>
-          <p className="mt-2 text-sm text-slate-500">
-            Mengambil daftar keluarga yang terhubung dengan unit BMT.
-          </p>
-        </div>
+        <TableSkeleton columns={8} minWidthClassName="min-w-245" />
       ) : (
         <AnggotaBmtTable rows={rows} onDelete={setSelectedDeleteRow} />
       )}

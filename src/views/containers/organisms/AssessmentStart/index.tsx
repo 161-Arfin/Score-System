@@ -107,10 +107,12 @@ export default function AssessmentStart() {
 
   useEffect(() => {
     if (!selectedProvinceId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setRegencyOptions([]);
-      setDistrictOptions([]);
-      return;
+      const timeoutId = window.setTimeout(() => {
+        setRegencyOptions([]);
+        setDistrictOptions([]);
+      }, 0);
+
+      return () => window.clearTimeout(timeoutId);
     }
 
     const timeoutId = window.setTimeout(async () => {
@@ -124,9 +126,11 @@ export default function AssessmentStart() {
 
   useEffect(() => {
     if (!selectedRegencyId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setDistrictOptions([]);
-      return;
+      const timeoutId = window.setTimeout(() => {
+        setDistrictOptions([]);
+      }, 0);
+
+      return () => window.clearTimeout(timeoutId);
     }
 
     const timeoutId = window.setTimeout(async () => {
