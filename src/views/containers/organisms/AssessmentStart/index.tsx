@@ -107,6 +107,7 @@ export default function AssessmentStart() {
 
   useEffect(() => {
     if (!selectedProvinceId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRegencyOptions([]);
       setDistrictOptions([]);
       return;
@@ -123,6 +124,7 @@ export default function AssessmentStart() {
 
   useEffect(() => {
     if (!selectedRegencyId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDistrictOptions([]);
       return;
     }
@@ -563,7 +565,9 @@ export default function AssessmentStart() {
                         label="Unit BMT"
                         name="instansi_id"
                         value={formValues.instansi_id}
-                        onChange={(value) => setFieldValue("instansi_id", value)}
+                        onChange={(value) =>
+                          setFieldValue("instansi_id", value)
+                        }
                         options={unitBmtDropdownOptions}
                         placeholder="Pilih unit BMT"
                       />
