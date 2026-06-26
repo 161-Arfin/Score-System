@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { type CSSProperties, useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import { defaultDashboardFilters } from "@/features/dashboard/constants";
 import { getDashboardData } from "@/features/dashboard/services/dashboard.service";
@@ -11,10 +11,142 @@ import BottomInsightPanel from "@/views/components/molecules/Dashboard/BottomIns
 import DashboardFilters from "@/views/components/molecules/Dashboard/DashboardFilters";
 import DashboardSummary from "@/views/components/molecules/Dashboard/DashboardSummary";
 import DimensionScoreChart from "@/views/components/molecules/Dashboard/DimensionScoreChart";
-import FamilyScoreTable from "@/views/components/molecules/Dashboard/FamilyScoreTable";
 import MonthlyTrendChart from "@/views/components/molecules/Dashboard/MonthlyTrendChart";
 import TierDistribution from "@/views/components/molecules/Dashboard/TierDistribution";
-import UnitPerformanceTable from "@/views/components/molecules/Dashboard/UnitPerformanceTable";
+
+function SkeletonBlock({
+  className = "",
+  style,
+}: {
+  className?: string;
+  style?: CSSProperties;
+}) {
+  return (
+    <div
+      className={[
+        "animate-pulse rounded-md bg-gradient-to-r from-slate-100 via-slate-200 to-slate-100",
+        className,
+      ].join(" ")}
+      style={style}
+    />
+  );
+}
+
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-5" aria-label="Memuat dashboard">
+      <div className="flex flex-col justify-between gap-3 lg:flex-row lg:items-end">
+        <div className="w-full max-w-2xl">
+          <SkeletonBlock className="h-9 w-72 max-w-full" />
+          <SkeletonBlock className="mt-3 h-4 w-full max-w-xl" />
+          <SkeletonBlock className="mt-2 h-4 w-4/5 max-w-lg" />
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        {Array.from({ length: 5 }).map((_, index) => (
+          <div
+            key={index}
+            className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0 flex-1">
+                <SkeletonBlock className="h-3 w-24" />
+                <SkeletonBlock className="mt-4 h-8 w-20" />
+                <SkeletonBlock className="mt-3 h-3 w-32" />
+              </div>
+              <SkeletonBlock className="h-11 w-11 rounded-lg" />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid gap-5 xl:grid-cols-2">
+        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <SkeletonBlock className="h-3 w-28" />
+              <SkeletonBlock className="mt-3 h-5 w-56 max-w-full" />
+            </div>
+            <SkeletonBlock className="h-7 w-24 rounded-full" />
+          </div>
+          <div className="mt-6 grid items-center gap-6 sm:grid-cols-[160px_1fr]">
+            <SkeletonBlock className="mx-auto h-36 w-36 rounded-full" />
+            <div className="space-y-4">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <div key={index} className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <SkeletonBlock className="h-3 w-3 rounded-full" />
+                    <SkeletonBlock className="h-4 w-24" />
+                  </div>
+                  <SkeletonBlock className="h-4 w-10" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <SkeletonBlock className="h-3 w-28" />
+          <SkeletonBlock className="mt-3 h-5 w-56 max-w-full" />
+          <div className="mt-6 space-y-4">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div key={index} className="grid grid-cols-[120px_1fr_40px] items-center gap-3">
+                <SkeletonBlock className="h-4 w-full" />
+                <SkeletonBlock className="h-3 w-full rounded-full" />
+                <SkeletonBlock className="h-4 w-full" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+          <div>
+            <SkeletonBlock className="h-3 w-48" />
+            <SkeletonBlock className="mt-3 h-5 w-56 max-w-full" />
+          </div>
+          <SkeletonBlock className="h-7 w-20 rounded-full" />
+        </div>
+        <div className="mt-5 h-64 overflow-hidden rounded-lg bg-slate-50 p-6">
+          <div className="flex h-full items-end gap-8">
+            {[45, 70, 52, 88, 64, 76, 58].map((height, index) => (
+              <SkeletonBlock
+                key={index}
+                className="w-full rounded-t-lg"
+                style={{ height: `${height}%` }}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        {Array.from({ length: 2 }).map((_, index) => (
+          <div
+            key={index}
+            className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"
+          >
+            <SkeletonBlock className="h-3 w-32" />
+            <SkeletonBlock className="mt-3 h-5 w-60 max-w-full" />
+            <div className="mt-6 space-y-4">
+              {Array.from({ length: 4 }).map((__, itemIndex) => (
+                <div key={itemIndex} className="space-y-2">
+                  <div className="flex justify-between">
+                    <SkeletonBlock className="h-4 w-32" />
+                    <SkeletonBlock className="h-4 w-10" />
+                  </div>
+                  <SkeletonBlock className="h-3 w-full rounded-full" />
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -79,6 +211,10 @@ export default function Dashboard() {
   }, [selectedUnitId, session?.user?.instansi_id, userRole]);
 
   const riskSummary = useMemo(() => {
+    if (dashboardData?.riskSummary) {
+      return dashboardData.riskSummary;
+    }
+
     const bronzeTotal =
       dashboardData?.familyScoreRows.filter((row) => row.tier === "Perunggu")
         .length ?? 0;
@@ -94,16 +230,7 @@ export default function Dashboard() {
   }, [dashboardData]);
 
   if (isLoading) {
-    return (
-      <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-        <p className="text-sm font-semibold text-slate-950">
-          Memuat dashboard...
-        </p>
-        <p className="mt-2 text-sm text-slate-500">
-          Mengambil data ringkasan score keluarga.
-        </p>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (errorMessage || !dashboardData) {
@@ -111,7 +238,7 @@ export default function Dashboard() {
       <div className="rounded-lg border border-[#F44336]/25 bg-white p-6 shadow-sm">
         <p className="text-sm font-semibold text-[#C62828]">{errorMessage}</p>
         <p className="mt-2 text-sm text-slate-500">
-          Cek konfigurasi API dashboard atau aktifkan mock data sementara.
+          Cek konfigurasi API dashboard atau status koneksi backend.
         </p>
       </div>
     );
@@ -150,12 +277,6 @@ export default function Dashboard() {
       </div>
 
       <MonthlyTrendChart trends={dashboardData.monthlyTrend} />
-      {isSuperAdmin ? (
-        <>
-          {/* <UnitPerformanceTable rows={dashboardData.unitPerformanceRows} /> */}
-        </>
-      ) : null}
-      {/* <FamilyScoreTable rows={dashboardData.familyScoreRows} /> */}
       <BottomInsightPanel
         bronzeTotal={riskSummary.bronzeTotal}
         focusDimensions={dashboardData.focusDimensions}

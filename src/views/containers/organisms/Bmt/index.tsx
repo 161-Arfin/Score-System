@@ -4,6 +4,7 @@ import {
   getUnitBmtList,
 } from "@/features/bmt/services/bmt.service";
 import type { UnitBmt } from "@/features/bmt/types";
+import TableSkeleton from "@/views/components/atoms/TableSkeleton";
 import BmtDeleteDialog from "@/views/components/molecules/Bmt/BmtDeleteDialog";
 import BmtTable from "@/views/components/molecules/Bmt/BmtTable";
 
@@ -70,14 +71,7 @@ export default function Bmt() {
       ) : null}
 
       {isLoading ? (
-        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="text-sm font-semibold text-slate-950">
-            Memuat data Unit BMT...
-          </p>
-          <p className="mt-2 text-sm text-slate-500">
-            Mengambil daftar unit yang terhubung dengan dashboard.
-          </p>
-        </div>
+        <TableSkeleton columns={5} minWidthClassName="min-w-[760px]" />
       ) : (
         <BmtTable rows={rows} onDelete={setSelectedDeleteUnit} />
       )}

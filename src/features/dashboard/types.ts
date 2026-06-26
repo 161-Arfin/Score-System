@@ -28,7 +28,10 @@ export type DimensionScoreItem = {
 export type MonthlyTrendItem = {
   month: string;
   label: string;
+  quarter?: number;
   value: number;
+  period?: string;
+  totalFamilies?: number;
 };
 
 export type UnitPerformanceRow = {
@@ -56,6 +59,12 @@ export type FocusDimensionItem = {
   value: number;
 };
 
+export type DashboardRiskSummary = {
+  bronzeTotal: number;
+  redTotal: number;
+  riskTotal: number;
+};
+
 export type DashboardFilters = {
   unitId: string;
   tier: "all" | TierLabel;
@@ -75,6 +84,7 @@ export type DashboardData = {
   unitPerformanceRows: UnitPerformanceRow[];
   familyScoreRows: FamilyScoreRow[];
   focusDimensions: FocusDimensionItem[];
+  riskSummary?: DashboardRiskSummary;
   filters: DashboardFilters;
   filterOptions: DashboardFilterOption[];
   updatedAt: string;

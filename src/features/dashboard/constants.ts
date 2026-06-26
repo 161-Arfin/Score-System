@@ -28,3 +28,8 @@ export const defaultDashboardFilters: DashboardFilters = {
 
 export const dashboardEndpoint = "/dashboard";
 export const dashboardStatisticEndpoint = "/v1/auth/statistik";
+export const dashboardQuarterScoreEndpoint = "/v1/auth/statistik/score-kuartal";
+export const dashboardLowScoreDimensionEndpoint =
+  "/v1/auth/statistik/low-score-dimensi";
+export const dashboardTierRiskEndpoint =
+  "/v1/auth/statistik/tier-perunggu-merah";

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useFormik } from "formik";
-import { CheckCircle2 } from "lucide-react";
 import { validateAssessmentPhone } from "@/features/assessment/services/assessment.service";
 import type { AssessmentValidationResult } from "@/features/assessment/types";
 

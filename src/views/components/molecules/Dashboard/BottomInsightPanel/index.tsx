@@ -1,5 +1,4 @@
 import type { FocusDimensionItem } from "@/features/dashboard/types";
-import ChartBar from "@/views/components/atoms/ChartBar";
 
 type BottomInsightPanelProps = {
   focusDimensions: FocusDimensionItem[];
@@ -14,6 +13,10 @@ export default function BottomInsightPanel({
   redTotal,
   riskTotal,
 }: BottomInsightPanelProps) {
+  const sortedDimensions = [...focusDimensions].sort(
+    (first, second) => second.value - first.value,
+  );
+
   return (
     <section className="grid gap-4 lg:grid-cols-2">
       <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
@@ -24,15 +27,19 @@ export default function BottomInsightPanel({
           Area yang perlu pendampingan
         </h2>
 
-        <div className="mt-6 space-y-4">
-          {focusDimensions.map((item) => (
-            <ChartBar
+        <div className="mt-6 divide-y divide-slate-100">
+          {sortedDimensions.map((item) => (
+            <div
               key={item.label}
-              label={item.label}
-              max={20}
-              tone="warning"
-              value={item.value}
-            />
+              className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0"
+            >
+              <p className="text-base font-medium text-slate-700">
+                {item.label}
+              </p>
+              <p className="min-w-12 text-right text-lg font-bold text-slate-950">
+                {item.value}
+              </p>
+            </div>
           ))}
         </div>
       </div>
