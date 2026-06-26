@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getAssessmentResults } from "@/features/assessment/services/assessment.service";
 import type { AssessmentResult } from "@/features/assessment/types";
+import TableSkeleton from "@/views/components/atoms/TableSkeleton";
 import AssessmentResultTable from "@/views/components/molecules/Assessment/AssessmentResultTable";
 
 export default function AssessmentResponse() {
@@ -47,14 +48,7 @@ export default function AssessmentResponse() {
       ) : null}
 
       {isLoading ? (
-        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="text-sm font-semibold text-slate-950">
-            Memuat data Response Assessment...
-          </p>
-          <p className="mt-2 text-sm text-slate-500">
-            Mengambil jawaban assessment anggota yang sudah tersimpan.
-          </p>
-        </div>
+        <TableSkeleton columns={8} minWidthClassName="min-w-[1100px]" />
       ) : (
         <AssessmentResultTable rows={rows} />
       )}

@@ -9,6 +9,7 @@ import {
 import type { AnggotaBmtPayload } from "@/features/anggota-bmt/types";
 import { getUnitBmtList } from "@/features/bmt/services/bmt.service";
 import type { UnitBmt } from "@/features/bmt/types";
+import FormSkeleton from "@/views/components/atoms/FormSkeleton";
 import AnggotaBmtForm from "@/views/components/molecules/AnggotaBmt/AnggotaBmtForm";
 
 const initialValues: AnggotaBmtPayload = {
@@ -150,13 +151,7 @@ export default function AnggotaBmtFormContainer({
       ) : null}
 
       {isLoadingOptions || isLoadingDetail ? (
-        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="text-sm font-semibold text-slate-950">
-            {isLoadingDetail
-              ? "Memuat detail Anggota BMT..."
-              : "Memuat pilihan Unit BMT..."}
-          </p>
-        </div>
+        <FormSkeleton columns={2} fields={9} withWideField />
       ) : (
         <AnggotaBmtForm
           isSubmitting={isSubmitting}

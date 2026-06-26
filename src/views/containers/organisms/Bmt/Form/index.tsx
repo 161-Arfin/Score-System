@@ -6,6 +6,7 @@ import {
   updateUnitBmt,
 } from "@/features/bmt/services/bmt.service";
 import type { UnitBmtPayload } from "@/features/bmt/types";
+import FormSkeleton from "@/views/components/atoms/FormSkeleton";
 import BmtForm from "@/views/components/molecules/Bmt/BmtForm";
 
 type BmtFormContainerProps = {
@@ -92,11 +93,7 @@ export default function BmtFormContainer({
       ) : null}
 
       {isLoading ? (
-        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="text-sm font-semibold text-slate-950">
-            Memuat detail Unit BMT...
-          </p>
-        </div>
+        <FormSkeleton fields={3} />
       ) : (
         <BmtForm
           isSubmitting={isSubmitting}

@@ -107,9 +107,12 @@ export default function AssessmentStart() {
 
   useEffect(() => {
     if (!selectedProvinceId) {
-      setRegencyOptions([]);
-      setDistrictOptions([]);
-      return;
+      const timeoutId = window.setTimeout(() => {
+        setRegencyOptions([]);
+        setDistrictOptions([]);
+      }, 0);
+
+      return () => window.clearTimeout(timeoutId);
     }
 
     const timeoutId = window.setTimeout(async () => {
@@ -123,8 +126,11 @@ export default function AssessmentStart() {
 
   useEffect(() => {
     if (!selectedRegencyId) {
-      setDistrictOptions([]);
-      return;
+      const timeoutId = window.setTimeout(() => {
+        setDistrictOptions([]);
+      }, 0);
+
+      return () => window.clearTimeout(timeoutId);
     }
 
     const timeoutId = window.setTimeout(async () => {
@@ -563,7 +569,9 @@ export default function AssessmentStart() {
                         label="Unit BMT"
                         name="instansi_id"
                         value={formValues.instansi_id}
-                        onChange={(value) => setFieldValue("instansi_id", value)}
+                        onChange={(value) =>
+                          setFieldValue("instansi_id", value)
+                        }
                         options={unitBmtDropdownOptions}
                         placeholder="Pilih unit BMT"
                       />

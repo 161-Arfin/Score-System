@@ -1,16 +1,8 @@
-import { mockDashboardData } from "../mocks";
 import type {
   DashboardData,
-  DashboardFilterOption,
-  DashboardFilters,
-  DashboardStat,
-  DimensionScoreItem,
-  FamilyScoreRow,
+  DashboardRiskSummary,
   FocusDimensionItem,
   MonthlyTrendItem,
-  TierDistributionItem,
-  TierLabel,
-  UnitPerformanceRow,
 } from "../types";
 
 type BackendDashboardStatistic = {
@@ -33,34 +25,37 @@ type BackendDashboardStatistic = {
   avg_alaql_score?: number;
 };
 
-type BackendDashboardResponse = Partial<{
-  stats: DashboardStat[];
-  summary: DashboardStat[];
-  tierDistribution: TierDistributionItem[];
-  tiers: TierDistributionItem[];
-  dimensionScores: DimensionScoreItem[];
-  dimensions: DimensionScoreItem[];
-  monthlyTrend: MonthlyTrendItem[];
-  trends: MonthlyTrendItem[];
-  unitPerformanceRows: UnitPerformanceRow[];
-  units: UnitPerformanceRow[];
-  familyScoreRows: FamilyScoreRow[];
-  families: FamilyScoreRow[];
-  focusDimensions: FocusDimensionItem[];
-  focus: FocusDimensionItem[];
-  filters: DashboardFilters;
-  filterOptions: DashboardFilterOption[];
-  updatedAt: string;
-  updated_at: string;
-}>;
+type BackendQuarterScoreItem = {
+  kuartal?: number;
+  label?: string;
+  periode?: string;
+  avg_score?: number;
+  total_keluarga?: number;
+};
 
-const normalizeTierDistribution = (
-  items: TierDistributionItem[] | undefined,
-) => {
-  return items?.map((item) => ({
-    tier: item.tier as TierLabel,
-    value: Number(item.value),
-  }));
+type BackendQuarterScoreResponse = {
+  year?: number;
+  data?: BackendQuarterScoreItem[];
+};
+
+type BackendLowScoreDimensionItem = {
+  id?: number;
+  dimensi_name?: string;
+  total_keluarga?: number;
+};
+
+type BackendLowScoreDimensionResponse = {
+  data?: BackendLowScoreDimensionItem[];
+};
+
+type BackendTierRiskItem = {
+  id_tier?: number;
+  tier_name?: string;
+  total_keluarga?: number;
+};
+
+type BackendTierRiskResponse = {
+  data?: BackendTierRiskItem[];
 };
 
 function getResponseData<T>(response: unknown): T {
@@ -144,5 +139,78 @@ export function mapDashboardStatisticResponse(
       { label: "An-Nafs", value: toNumber(data.avg_annafs_score) },
       { label: "Al-Aql", value: toNumber(data.avg_alaql_score) },
     ],
+  };
+}
+
+export function mapQuarterScoreResponse(response: unknown): MonthlyTrendItem[] {
+  const data = getResponseData<BackendQuarterScoreResponse>(response);
+  const year = data.year ?? new Date().getFullYear();
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentQuarter = Math.ceil((now.getMonth() + 1) / 3);
+  const items = Array.isArray(data.data) ? data.data : [];
+
+  return items
+    .map((item) => {
+      const quarter = toNumber(item.kuartal);
+      const label = item.label ?? `Kuartal ${quarter}`;
+
+      return {
+        month: `${year}-Q${quarter}`,
+        label,
+        quarter,
+        period: item.periode,
+        value: toNumber(item.avg_score),
+        totalFamilies: toNumber(item.total_keluarga),
+      };
+    })
+    .filter((item) => {
+      if (item.quarter < 1 || item.quarter > 4) {
+        return false;
+      }
+
+      if (year < currentYear) {
+        return true;
+      }
+
+      if (year > currentYear) {
+        return false;
+      }
+
+      return item.quarter <= currentQuarter;
+    });
+}
+
+export function mapLowScoreDimensionResponse(
+  response: unknown,
+): FocusDimensionItem[] {
+  const data = getResponseData<BackendLowScoreDimensionResponse>(response);
+  const items = Array.isArray(data) ? data : Array.isArray(data.data) ? data.data : [];
+
+  return items
+    .map((item) => ({
+      label: item.dimensi_name ?? "-",
+      value: toNumber(item.total_keluarga),
+    }))
+    .filter((item) => item.label !== "-");
+}
+
+export function mapTierRiskResponse(response: unknown): DashboardRiskSummary {
+  const data = getResponseData<BackendTierRiskResponse>(response);
+  const items = Array.isArray(data) ? data : Array.isArray(data.data) ? data.data : [];
+  const getTierTotal = (tierName: string) => {
+    const item = items.find(
+      (current) => current.tier_name?.toLowerCase() === tierName,
+    );
+
+    return toNumber(item?.total_keluarga);
+  };
+  const redTotal = getTierTotal("merah");
+  const bronzeTotal = getTierTotal("perunggu");
+
+  return {
+    bronzeTotal,
+    redTotal,
+    riskTotal: bronzeTotal + redTotal,
   };
 }

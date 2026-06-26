@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { getAssessmentScoreResults } from "@/features/assessment/services/assessment.service";
 import type { AssessmentScoreResult } from "@/features/assessment/types";
+import TableSkeleton from "@/views/components/atoms/TableSkeleton";
 import AssessmentScoreTable from "@/views/components/molecules/Assessment/AssessmentScoreTable";
 
 export default function AssessmentScore() {
@@ -46,14 +47,7 @@ export default function AssessmentScore() {
       ) : null}
 
       {isLoading ? (
-        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="text-sm font-semibold text-slate-950">
-            Memuat data Score Assessment...
-          </p>
-          <p className="mt-2 text-sm text-slate-500">
-            Mengambil hasil assessment anggota yang sudah tersimpan.
-          </p>
-        </div>
+        <TableSkeleton columns={7} minWidthClassName="min-w-[980px]" />
       ) : (
         <AssessmentScoreTable rows={rows} />
       )}
