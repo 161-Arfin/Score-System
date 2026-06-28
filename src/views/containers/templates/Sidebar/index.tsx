@@ -218,7 +218,9 @@ export default function Sidebar({
             );
           })}
 
-          <SidebarSectionLabel isCollapsed={isCollapsed}>BMT</SidebarSectionLabel>
+          <SidebarSectionLabel isCollapsed={isCollapsed}>
+            {canManageUnitBmt ? "BMT" : "Data BMT"}
+          </SidebarSectionLabel>
 
           {canManageUnitBmt ? (
             <div className="relative min-w-max lg:min-w-0">

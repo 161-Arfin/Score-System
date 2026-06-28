@@ -49,7 +49,7 @@ export default function BottomInsightPanel({
           Scorecard Risiko
         </p>
         <h2 className="mt-1 text-lg font-bold text-slate-950">
-          Keluarga prioritas bulan ini
+          Keluarga prioritas kuartal ini
         </h2>
 
         <div className="mt-6 rounded-lg bg-slate-50 p-5">
@@ -70,9 +70,7 @@ export default function BottomInsightPanel({
               <p className="text-xs font-semibold uppercase text-red-700">
                 Merah
               </p>
-              <p className="mt-1 text-2xl font-bold text-red-800">
-                {redTotal}
-              </p>
+              <p className="mt-1 text-2xl font-bold text-red-800">{redTotal}</p>
             </div>
           </div>
         </div>
