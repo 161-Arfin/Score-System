@@ -18,10 +18,18 @@ export default function Navbar({
   showProfileMenu = true,
   title = "Sakinah Score Dashboard",
 }: NavbarProps) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
-  const profileName = session?.user?.name ?? "Admin Score System";
+  const profileName = isMounted ? session?.user?.name?.trim() ?? "" : "";
+  const profileLabel =
+    profileName || (isMounted && status === "loading" ? "Memuat sesi" : "Pengguna");
+  const profileRole =
+    isMounted
+      ? session?.user?.usertype_name ??
+        (session?.user?.role === "superadmin" ? "Super Admin" : "Admin")
+      : "Administrator";
   const initials = profileName
     .split(" ")
     .map((part) => part[0])
@@ -30,6 +38,8 @@ export default function Navbar({
     .toUpperCase();
 
   useEffect(() => {
+    setIsMounted(true);
+
     const handleOutsideClick = (event: MouseEvent) => {
       if (
         profileMenuRef.current &&
@@ -82,7 +92,7 @@ export default function Navbar({
           <div ref={profileMenuRef} className="relative flex items-center gap-2">
             <button
               type="button"
-              title={profileName}
+              title={profileLabel}
               aria-label="Buka menu profil"
               aria-expanded={isProfileMenuOpen}
               onClick={() => setIsProfileMenuOpen((current) => !current)}
@@ -101,10 +111,10 @@ export default function Navbar({
             >
               <div className="border-b border-slate-100 px-3 py-2">
                 <p className="truncate text-sm font-bold text-slate-950">
-                  {profileName}
+                  {profileLabel}
                 </p>
                 <p className="mt-0.5 text-xs font-medium text-slate-500">
-                  Administrator
+                  {profileRole}
                 </p>
               </div>
               <div className="mt-2 space-y-1">

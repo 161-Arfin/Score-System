@@ -151,7 +151,7 @@ function DashboardSkeleton() {
 export default function Dashboard() {
   const { data: session } = useSession();
   const userRole = normalizeUserRole(session?.user?.role);
-  const isSuperAdmin = userRole === "superadmin";
+  const isSuperAdmin = session?.user?.role === "superadmin";
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
     null,
   );
@@ -182,6 +182,10 @@ export default function Dashboard() {
         if (isMounted) {
           setDashboardData(data);
           setUnitFilterOptions((currentOptions) => {
+            if (!isSuperAdmin) {
+              return [];
+            }
+
             if (currentOptions.length > 0 || selectedUnitId !== "all") {
               return currentOptions;
             }
@@ -208,7 +212,7 @@ export default function Dashboard() {
     return () => {
       isMounted = false;
     };
-  }, [selectedUnitId, session?.user?.instansi_id, userRole]);
+  }, [isSuperAdmin, selectedUnitId, session?.user?.instansi_id, userRole]);
 
   const riskSummary = useMemo(() => {
     if (dashboardData?.riskSummary) {
