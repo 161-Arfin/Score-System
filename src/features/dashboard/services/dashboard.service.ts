@@ -77,24 +77,18 @@ export async function getDashboardData(
     params: getStatisticParams(filters, scope),
   });
   const statisticData = mapDashboardStatisticResponse(response.data);
-  const [
-    quarterScoreResponse,
-    lowScoreDimensionResponse,
-    tierRiskResponse,
-  ] =
-    scope?.role === "superadmin"
-      ? await Promise.allSettled([
-          api.get(dashboardQuarterScoreEndpoint, {
-            params: getQuarterScoreParams(filters, scope),
-          }),
-          api.get(dashboardLowScoreDimensionEndpoint, {
-            params: getStatisticParams(filters, scope),
-          }),
-          api.get(dashboardTierRiskEndpoint, {
-            params: getStatisticParams(filters, scope),
-          }),
-        ])
-      : [null, null, null];
+  const [quarterScoreResponse, lowScoreDimensionResponse, tierRiskResponse] =
+    await Promise.allSettled([
+      api.get(dashboardQuarterScoreEndpoint, {
+        params: getQuarterScoreParams(filters, scope),
+      }),
+      api.get(dashboardLowScoreDimensionEndpoint, {
+        params: getStatisticParams(filters, scope),
+      }),
+      api.get(dashboardTierRiskEndpoint, {
+        params: getStatisticParams(filters, scope),
+      }),
+    ]);
   const monthlyTrend =
     quarterScoreResponse?.status === "fulfilled"
       ? mapQuarterScoreResponse(quarterScoreResponse.value.data)
