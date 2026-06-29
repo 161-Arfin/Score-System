@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { bmtEndpoint, defaultBmtFilters } from "../constants";
+import { bmtEndpoint, defaultBmtFilters, publicBmtEndpoint } from "../constants";
 import {
   mapUnitBmtListResponse,
   mapUnitBmtResponse,
@@ -30,16 +30,26 @@ function sortNewestRows(rows: UnitBmt[]) {
 export async function getUnitBmtList(
   filters: UnitBmtFilters = defaultBmtFilters,
 ): Promise<UnitBmtListResponse> {
-  const response = await api.get(bmtEndpoint, {
-    params: filters,
-  });
+  try {
+    const response = await api.get(bmtEndpoint, {
+      params: filters,
+    });
 
-  const result = mapUnitBmtListResponse(response.data);
+    const result = mapUnitBmtListResponse(response.data);
 
-  return {
-    ...result,
-    data: sortNewestRows(result.data),
-  };
+    return {
+      ...result,
+      data: sortNewestRows(result.data),
+    };
+  } catch {
+    return getPublicUnitBmtList();
+  }
+}
+
+export async function getPublicUnitBmtList(): Promise<UnitBmtListResponse> {
+  const response = await api.get(publicBmtEndpoint);
+
+  return mapUnitBmtListResponse(response.data);
 }
 
 export async function getDeletedUnitBmtList(): Promise<UnitBmtListResponse> {

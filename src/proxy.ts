@@ -38,6 +38,7 @@ function isPublicApiRoute(pathname: string, method: string) {
   }
 
   return (
+    (pathname === "/api/backend/v1/instansi" && method === "GET") ||
     ((pathname === "/api/backend/assessment" ||
       pathname === "/api/backend/v1/assessment") &&
       method === "POST") ||
