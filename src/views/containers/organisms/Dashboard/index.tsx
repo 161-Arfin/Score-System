@@ -1,5 +1,6 @@
 import { type CSSProperties, useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
+import { getUnitBmtList } from "@/features/bmt/services/bmt.service";
 import { defaultDashboardFilters } from "@/features/dashboard/constants";
 import { getDashboardData } from "@/features/dashboard/services/dashboard.service";
 import type {
@@ -165,6 +166,42 @@ export default function Dashboard() {
   useEffect(() => {
     let isMounted = true;
 
+    async function loadUnitFilterOptions() {
+      if (!isSuperAdmin) {
+        setUnitFilterOptions([]);
+        return;
+      }
+
+      try {
+        const response = await getUnitBmtList();
+
+        if (isMounted) {
+          setUnitFilterOptions(
+            response.data
+              .filter((unit) => !unit.is_delete_instansi)
+              .map((unit) => ({
+                label: unit.instansi_name,
+                value: unit.id,
+              })),
+          );
+        }
+      } catch {
+        if (isMounted) {
+          setUnitFilterOptions([]);
+        }
+      }
+    }
+
+    loadUnitFilterOptions();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isSuperAdmin]);
+
+  useEffect(() => {
+    let isMounted = true;
+
     async function loadDashboardData() {
       try {
         setIsLoading(true);
@@ -181,20 +218,6 @@ export default function Dashboard() {
 
         if (isMounted) {
           setDashboardData(data);
-          setUnitFilterOptions((currentOptions) => {
-            if (!isSuperAdmin) {
-              return [];
-            }
-
-            if (currentOptions.length > 0 || selectedUnitId !== "all") {
-              return currentOptions;
-            }
-
-            return data.unitPerformanceRows.map((unit) => ({
-              label: unit.unitName,
-              value: unit.unitId,
-            }));
-          });
         }
       } catch {
         if (isMounted) {

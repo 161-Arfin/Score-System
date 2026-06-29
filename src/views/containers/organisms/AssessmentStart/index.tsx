@@ -8,7 +8,7 @@ import {
   type RegionOption,
 } from "@/features/anggota-bmt/services/region.service";
 import { createAnggotaBmt } from "@/features/anggota-bmt/services/anggota-bmt.service";
-import { getUnitBmtList } from "@/features/bmt/services/bmt.service";
+import { getPublicUnitBmtList } from "@/features/bmt/services/bmt.service";
 import type { UnitBmt } from "@/features/bmt/types";
 import {
   assessmentConfirmation,
@@ -95,7 +95,7 @@ export default function AssessmentStart() {
   useEffect(() => {
     const timeoutId = window.setTimeout(async () => {
       try {
-        const response = await getUnitBmtList();
+        const response = await getPublicUnitBmtList();
         setUnitBmtOptions(response.data);
       } catch {
         setUnitBmtOptions([]);

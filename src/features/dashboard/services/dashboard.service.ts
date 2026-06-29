@@ -53,6 +53,22 @@ function getStatisticParams(
   return params;
 }
 
+function getSelectedYear(filters: DashboardFilters) {
+  const year = filters.date.split("-")[0];
+
+  return year || String(new Date().getFullYear());
+}
+
+function getQuarterScoreParams(
+  filters: DashboardFilters,
+  scope?: DashboardAccessScope,
+) {
+  return {
+    ...getStatisticParams(filters, scope),
+    year: getSelectedYear(filters),
+  };
+}
+
 export async function getDashboardData(
   filters: DashboardFilters = defaultDashboardFilters,
   scope?: DashboardAccessScope,
@@ -68,9 +84,15 @@ export async function getDashboardData(
   ] =
     scope?.role === "superadmin"
       ? await Promise.allSettled([
-          api.get(dashboardQuarterScoreEndpoint),
-          api.get(dashboardLowScoreDimensionEndpoint),
-          api.get(dashboardTierRiskEndpoint),
+          api.get(dashboardQuarterScoreEndpoint, {
+            params: getQuarterScoreParams(filters, scope),
+          }),
+          api.get(dashboardLowScoreDimensionEndpoint, {
+            params: getStatisticParams(filters, scope),
+          }),
+          api.get(dashboardTierRiskEndpoint, {
+            params: getStatisticParams(filters, scope),
+          }),
         ])
       : [null, null, null];
   const monthlyTrend =
