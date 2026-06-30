@@ -5,7 +5,7 @@ export type DashboardStatIconKey =
   | "average"
   | "berlian"
   | "emas"
-  | "perak";
+  | "assessment";
 
 export type DashboardStat = {
   key: string;
