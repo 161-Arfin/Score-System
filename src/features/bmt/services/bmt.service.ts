@@ -27,12 +27,23 @@ function sortNewestRows(rows: UnitBmt[]) {
   });
 }
 
+function getUnitBmtParams(filters: UnitBmtFilters) {
+  const params: Partial<UnitBmtFilters> = {};
+  const search = filters.search?.trim();
+
+  if (search) {
+    params.search = search;
+  }
+
+  return params;
+}
+
 export async function getUnitBmtList(
   filters: UnitBmtFilters = defaultBmtFilters,
 ): Promise<UnitBmtListResponse> {
   try {
     const response = await api.get(bmtEndpoint, {
-      params: filters,
+      params: getUnitBmtParams(filters),
     });
 
     const result = mapUnitBmtListResponse(response.data);

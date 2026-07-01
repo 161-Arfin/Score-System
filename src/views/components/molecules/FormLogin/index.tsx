@@ -53,6 +53,7 @@ export default function FormLogin() {
         return;
       }
 
+      window.sessionStorage.setItem("score-system-session-active", "true");
       await router.push("/");
     },
   });

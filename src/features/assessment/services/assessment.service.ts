@@ -337,10 +337,10 @@ function normalizeBackendStatus(status: number | string | undefined) {
     return status ? String(status) : "-";
   }
 
-  if (normalizedStatus >= 4) return "Kuat";
-  if (normalizedStatus === 3) return "Cukup";
-  if (normalizedStatus === 2) return "Perlu Penguatan";
-  if (normalizedStatus === 1) return "Prioritas";
+  if (normalizedStatus >= 4) return "Terjaga dengan baik";
+  if (normalizedStatus === 3) return "Terjaga Cukup";
+  if (normalizedStatus === 2) return "Terancam";
+  if (normalizedStatus === 1) return "Tidak Terjaga";
 
   return "-";
 }

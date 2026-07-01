@@ -20,7 +20,7 @@ export default function TierDistribution({ items }: TierDistributionProps) {
         ],
       };
     },
-    { current: 0, values: [] as string[] }
+    { current: 0, values: [] as string[] },
   ).values;
 
   return (
@@ -34,9 +34,9 @@ export default function TierDistribution({ items }: TierDistributionProps) {
             Komposisi keluarga binaan
           </h2>
         </div>
-        <span className="rounded-full bg-cyan-50 px-3 py-1 text-xs font-semibold text-cyan-800">
+        {/* <span className="rounded-full bg-cyan-50 px-3 py-1 text-xs font-semibold text-cyan-800">
           {total} keluarga
-        </span>
+        </span> */}
       </div>
 
       <div className="mt-6 grid items-center gap-6 sm:grid-cols-[160px_1fr]">
@@ -52,7 +52,10 @@ export default function TierDistribution({ items }: TierDistributionProps) {
 
         <div className="grid gap-3">
           {items.map((item) => (
-            <div key={item.tier} className="flex items-center justify-between gap-3">
+            <div
+              key={item.tier}
+              className="flex items-center justify-between gap-3"
+            >
               <div className="flex items-center gap-2">
                 <span
                   className="h-3 w-3 rounded-full"

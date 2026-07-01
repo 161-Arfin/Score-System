@@ -1,4 +1,12 @@
-import { BadgeCheck, Crown, Gem, Trophy, Users, type LucideIcon } from "lucide-react";
+import {
+  BadgeCheck,
+  ClipboardCheck,
+  Crown,
+  Gem,
+  Trophy,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 import type { DashboardStat, DashboardStatIconKey } from "@/features/dashboard/types";
 import StatCard from "@/views/components/atoms/StatCard";
 
@@ -11,7 +19,7 @@ const statIconMap: Record<DashboardStatIconKey, LucideIcon> = {
   average: BadgeCheck,
   berlian: Gem,
   emas: Crown,
-  perak: Trophy,
+  assessment: ClipboardCheck,
 };
 
 export default function DashboardSummary({ stats }: DashboardSummaryProps) {
@@ -21,7 +29,7 @@ export default function DashboardSummary({ stats }: DashboardSummaryProps) {
         <StatCard
           key={stat.key}
           caption={stat.caption}
-          icon={statIconMap[stat.iconKey]}
+          icon={statIconMap[stat.iconKey] ?? Trophy}
           label={stat.label}
           value={stat.value}
         />

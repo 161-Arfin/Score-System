@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import {
   ADMIN_FALLBACK_PATH,
   canAccessPath,
@@ -16,24 +16,70 @@ type AppShellProps = {
 
 export default function AppShell({ children }: AppShellProps) {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isBrowserSessionChecked, setIsBrowserSessionChecked] = useState(false);
   const isAuthPage = router.pathname.startsWith("/auth");
   const userRole = normalizeUserRole(session?.user?.role);
 
   useEffect(() => {
     if (!router.isReady || isAuthPage) {
+      setIsBrowserSessionChecked(true);
+      return;
+    }
+
+    if (status === "loading") {
+      return;
+    }
+
+    if (status === "unauthenticated") {
+      router.replace("/auth/login");
+      return;
+    }
+
+    const hasActiveBrowserSession =
+      window.sessionStorage.getItem("score-system-session-active") === "true";
+
+    if (!hasActiveBrowserSession) {
+      signOut({ redirect: false }).finally(() => {
+        router.replace("/auth/login");
+      });
+      return;
+    }
+
+    setIsBrowserSessionChecked(true);
+  }, [isAuthPage, router, status]);
+
+  useEffect(() => {
+    if (
+      !router.isReady ||
+      isAuthPage ||
+      status !== "authenticated" ||
+      !isBrowserSessionChecked
+    ) {
       return;
     }
 
     if (!canAccessPath(userRole, router.pathname)) {
       router.replace(ADMIN_FALLBACK_PATH);
     }
-  }, [isAuthPage, router, userRole]);
+  }, [isAuthPage, isBrowserSessionChecked, router, status, userRole]);
 
   if (isAuthPage) {
     return <>{children}</>;
+  }
+
+  if (status === "loading" || !isBrowserSessionChecked) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-zinc-100 px-4 text-sm font-semibold text-slate-500">
+        Memuat sesi...
+      </div>
+    );
+  }
+
+  if (status === "unauthenticated") {
+    return null;
   }
 
   if (!canAccessPath(userRole, router.pathname)) {

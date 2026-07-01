@@ -1,6 +1,6 @@
 import { type CSSProperties, useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
-import { getUnitBmtList } from "@/features/bmt/services/bmt.service";
+import { getPublicUnitBmtList } from "@/features/bmt/services/bmt.service";
 import { defaultDashboardFilters } from "@/features/dashboard/constants";
 import { getDashboardData } from "@/features/dashboard/services/dashboard.service";
 import type {
@@ -173,7 +173,7 @@ export default function Dashboard() {
       }
 
       try {
-        const response = await getUnitBmtList();
+        const response = await getPublicUnitBmtList();
 
         if (isMounted) {
           setUnitFilterOptions(
