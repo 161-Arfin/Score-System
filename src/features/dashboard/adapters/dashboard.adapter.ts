@@ -13,6 +13,7 @@ type BackendDashboardStatistic = {
   total_tier_perak?: number;
   total_tier_perunggu?: number;
   total_tier_merah?: number;
+  total_keluarga_kuartal_berjalan?: number;
   percen_berlian?: number;
   percen_emas?: number;
   percen_perak?: number;
@@ -118,11 +119,11 @@ export function mapDashboardStatisticResponse(
         iconKey: "emas",
       },
       {
-        key: "perak",
-        label: "Perak",
-        value: String(toNumber(data.total_tier_perak)),
-        caption: "Butuh penguatan",
-        iconKey: "perak",
+        key: "currentQuarterAssessment",
+        label: "Assessment Bulan Ini",
+        value: String(toNumber(data.total_keluarga_kuartal_berjalan)),
+        caption: "",
+        iconKey: "assessment",
       },
     ],
     tierDistribution: [

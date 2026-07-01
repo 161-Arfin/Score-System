@@ -15,12 +15,17 @@ export default function ChartBar({
   const color = tone === "warning" ? "bg-amber-500" : "bg-cyan-800";
 
   return (
-    <div className="grid grid-cols-[72px_1fr_36px] items-center gap-3 text-sm">
-      <span className="font-medium text-slate-600">{label}</span>
-      <div className="h-3 overflow-hidden rounded-full bg-slate-100">
-        <div className={`h-full rounded-full ${color}`} style={{ width: `${width}%` }} />
+    <div className="space-y-2 text-sm">
+      <div className="flex items-center justify-between gap-4">
+        <span className="font-medium text-slate-800">{label}</span>
+        <span className="shrink-0 font-semibold text-slate-950">{value}</span>
       </div>
-      <span className="text-right font-semibold text-slate-800">{value}</span>
+      <div className="h-2.5 overflow-hidden rounded-full bg-slate-100">
+        <div
+          className={`h-full rounded-full ${color}`}
+          style={{ width: `${width}%` }}
+        />
+      </div>
     </div>
   );
 }
