@@ -120,9 +120,9 @@ export function mapDashboardStatisticResponse(
       },
       {
         key: "currentQuarterAssessment",
-        label: "Assessment Bulan Ini",
+        label: "Assessment Kuartal Ini",
         value: String(toNumber(data.total_keluarga_kuartal_berjalan)),
-        caption: "",
+        caption: "Keluarga",
         iconKey: "assessment",
       },
     ],
@@ -186,7 +186,11 @@ export function mapLowScoreDimensionResponse(
   response: unknown,
 ): FocusDimensionItem[] {
   const data = getResponseData<BackendLowScoreDimensionResponse>(response);
-  const items = Array.isArray(data) ? data : Array.isArray(data.data) ? data.data : [];
+  const items = Array.isArray(data)
+    ? data
+    : Array.isArray(data.data)
+      ? data.data
+      : [];
 
   return items
     .map((item) => ({
@@ -198,7 +202,11 @@ export function mapLowScoreDimensionResponse(
 
 export function mapTierRiskResponse(response: unknown): DashboardRiskSummary {
   const data = getResponseData<BackendTierRiskResponse>(response);
-  const items = Array.isArray(data) ? data : Array.isArray(data.data) ? data.data : [];
+  const items = Array.isArray(data)
+    ? data
+    : Array.isArray(data.data)
+      ? data.data
+      : [];
   const getTierTotal = (tierName: string) => {
     const item = items.find(
       (current) => current.tier_name?.toLowerCase() === tierName,
