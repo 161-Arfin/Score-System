@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import {
   ADMIN_FALLBACK_PATH,
   canAccessPath,
@@ -20,6 +20,7 @@ export default function AppShell({ children }: AppShellProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isBrowserSessionChecked, setIsBrowserSessionChecked] = useState(false);
+  const [hasSessionLoadTimedOut, setHasSessionLoadTimedOut] = useState(false);
   const isAuthPage = router.pathname.startsWith("/auth");
   const userRole = normalizeUserRole(session?.user?.role);
 
@@ -29,27 +30,31 @@ export default function AppShell({ children }: AppShellProps) {
       return;
     }
 
-    if (status === "loading") {
+    if (status === "loading" && !hasSessionLoadTimedOut) {
       return;
     }
 
-    if (status === "unauthenticated") {
+    if (status === "unauthenticated" || hasSessionLoadTimedOut) {
+      window.sessionStorage.removeItem("score-system-session-active");
       router.replace("/auth/login");
       return;
     }
 
-    const hasActiveBrowserSession =
-      window.sessionStorage.getItem("score-system-session-active") === "true";
+    setIsBrowserSessionChecked(true);
+  }, [hasSessionLoadTimedOut, isAuthPage, router, status]);
 
-    if (!hasActiveBrowserSession) {
-      signOut({ redirect: false }).finally(() => {
-        router.replace("/auth/login");
-      });
+  useEffect(() => {
+    if (!router.isReady || isAuthPage || status !== "loading") {
+      setHasSessionLoadTimedOut(false);
       return;
     }
 
-    setIsBrowserSessionChecked(true);
-  }, [isAuthPage, router, status]);
+    const timeoutId = window.setTimeout(() => {
+      setHasSessionLoadTimedOut(true);
+    }, 4000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [isAuthPage, router.isReady, status]);
 
   useEffect(() => {
     if (
@@ -71,11 +76,7 @@ export default function AppShell({ children }: AppShellProps) {
   }
 
   if (status === "loading" || !isBrowserSessionChecked) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-100 px-4 text-sm font-semibold text-slate-500">
-        Memuat sesi...
-      </div>
-    );
+    return <div className="min-h-screen bg-zinc-100" />;
   }
 
   if (status === "unauthenticated") {

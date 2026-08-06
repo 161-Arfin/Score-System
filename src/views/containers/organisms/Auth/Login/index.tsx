@@ -20,8 +20,8 @@ export default function Login() {
             &copy; 2026 Score System. All rights reserved.
           </p>
 
-          <div className="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-cyan-600/45" />
-          <div className="absolute -bottom-32 -left-20 h-80 w-80 rounded-full bg-cyan-950/35" />
+          <div className="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-sky-500/25" />
+          <div className="absolute -bottom-32 -left-20 h-80 w-80 rounded-full bg-lime-500/20" />
           <div className="absolute bottom-12 right-8 h-52 w-52 rounded-full bg-white/10" />
         </div>
 

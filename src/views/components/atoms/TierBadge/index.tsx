@@ -9,11 +9,11 @@ type TierBadgeProps = {
 const tierConfig = {
   BERLIAN: {
     icon: Gem,
-    className: "bg-cyan-50 text-cyan-700 border-cyan-200",
+    className: "bg-sky-50 text-sky-700 border-sky-200",
   },
   EMAS: {
     icon: Crown,
-    className: "bg-amber-50 text-amber-700 border-amber-200",
+    className: "bg-lime-50 text-lime-700 border-lime-200",
   },
   PERAK: {
     icon: ShieldCheck,

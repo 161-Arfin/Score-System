@@ -90,7 +90,7 @@ export default function AssessmentPhoneDialog({
             <button
               type="button"
               onClick={() => setNoticeMessage("")}
-              className="rounded-lg bg-[#006B80] px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#00586A] focus:outline-none focus:ring-2 focus:ring-[#006B80]/20"
+              className="rounded-lg bg-[#3E9E9E] px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#2F7F80] focus:outline-none focus:ring-2 focus:ring-[#3E9E9E]/20"
             >
               Close
             </button>
@@ -129,7 +129,7 @@ export default function AssessmentPhoneDialog({
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             placeholder="6281212345678"
-            className="mt-2 h-12 w-full rounded-lg border border-slate-300 px-4 text-base text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-[#006B80] focus:ring-2 focus:ring-[#006B80]/10"
+            className="mt-2 h-12 w-full rounded-lg border border-slate-300 px-4 text-base text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-[#3E9E9E] focus:ring-2 focus:ring-[#3E9E9E]/10"
           />
           <p className="mt-2 text-sm text-slate-500">
             Silahkan masukkan nomor Whatsapp anda.
@@ -157,7 +157,7 @@ export default function AssessmentPhoneDialog({
             <button
               type="submit"
               disabled={isSubmitting || !formik.isValid}
-              className="rounded-lg bg-[#006B80] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#00586A] disabled:cursor-not-allowed disabled:opacity-70"
+              className="rounded-lg bg-[#3E9E9E] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#2F7F80] disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isSubmitting ? "Memeriksa..." : "Lanjut"}
             </button>

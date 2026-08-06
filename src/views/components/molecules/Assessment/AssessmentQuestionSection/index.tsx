@@ -35,7 +35,7 @@ export default function AssessmentQuestionSection({
   return (
     <div className="mx-auto w-full max-w-6xl">
       <div className="mb-8 text-center">
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#006B80]">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#3E9E9E]">
           {section.title}
         </p>
         <h1 className="mt-3 text-2xl font-bold text-slate-950 sm:text-3xl">
@@ -89,8 +89,8 @@ export default function AssessmentQuestionSection({
                       className={[
                         "h-10 w-10 rounded-full border-2 transition",
                         isSelected
-                          ? "border-[#006B80] bg-cyan-100 shadow-[0_0_0_6px_rgba(0,107,128,0.10)]"
-                          : "border-slate-300 bg-white hover:border-[#006B80]/60 hover:bg-cyan-50",
+                          ? "border-[#3E9E9E] bg-cyan-100 shadow-[0_0_0_6px_rgba(62,158,158,0.14)]"
+                          : "border-slate-300 bg-white hover:border-[#3E9E9E]/60 hover:bg-cyan-50",
                       ].join(" ")}
                     />
                     <span className="line-clamp-2 min-h-8 text-xs font-bold leading-4 text-slate-700">
@@ -116,7 +116,7 @@ export default function AssessmentQuestionSection({
                   className={[
                     "h-8 w-8 rounded-full border-2 transition sm:h-10 sm:w-10",
                     step.isComplete
-                      ? "border-[#006B80] bg-[#006B80]"
+                      ? "border-[#3E9E9E] bg-[#3E9E9E]"
                       : step.isCurrent
                         ? "border-slate-400 bg-slate-100"
                         : "border-slate-300 bg-white",
@@ -126,7 +126,7 @@ export default function AssessmentQuestionSection({
                   className={[
                     "text-center text-[11px] font-bold leading-tight sm:text-xs",
                     step.isComplete
-                      ? "text-[#006B80]"
+                      ? "text-[#3E9E9E]"
                       : step.isCurrent
                         ? "text-slate-600"
                         : "text-slate-400",
@@ -141,7 +141,7 @@ export default function AssessmentQuestionSection({
                 <div
                   className={[
                     "mx-1 mb-6 h-px flex-1 border-t-2 border-dashed sm:mx-3",
-                    step.isComplete ? "border-[#006B80]" : "border-slate-300",
+                    step.isComplete ? "border-[#3E9E9E]" : "border-slate-300",
                   ].join(" ")}
                 />
               ) : null}
