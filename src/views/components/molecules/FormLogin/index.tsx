@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useFormik } from "formik";
-import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
 import Button from "@/views/components/atoms/Button";
@@ -145,12 +144,9 @@ export default function FormLogin() {
 
       <p className="pt-3 text-sm text-slate-400">
         Belum punya akun?{" "}
-        <Link
-          href="#"
-          className="font-semibold text-cyan-800 underline-offset-4 hover:underline"
-        >
+        <span className="font-semibold text-cyan-800">
           Hubungi admin
-        </Link>
+        </span>
       </p>
     </form>
   );

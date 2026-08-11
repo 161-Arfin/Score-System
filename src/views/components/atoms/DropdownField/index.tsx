@@ -87,7 +87,7 @@ export default function DropdownField({
             setIsOpen((current) => !current);
           }}
           className={[
-            "mt-2 flex h-12 w-full items-center justify-between rounded-lg border border-slate-300 bg-white px-4 text-left text-sm outline-none transition focus:border-[#006B80] focus:ring-2 focus:ring-[#006B80]/10",
+            "mt-2 flex h-12 w-full items-center justify-between rounded-lg border border-slate-300 bg-white px-4 text-left text-sm outline-none transition focus:border-[#3E9E9E] focus:ring-2 focus:ring-[#3E9E9E]/10",
             selectedValue ? "text-slate-950" : "text-slate-500",
           ].join(" ")}
         >
@@ -95,7 +95,7 @@ export default function DropdownField({
           <ChevronDown
             className={[
               "ml-3 h-4 w-4 shrink-0 text-slate-500 transition",
-              isOpen ? "rotate-180 text-[#006B80]" : "",
+              isOpen ? "rotate-180 text-[#3E9E9E]" : "",
             ].join(" ")}
             strokeWidth={2}
           />
@@ -115,7 +115,7 @@ export default function DropdownField({
               updateValue("");
               setIsOpen(false);
             }}
-            className="block w-full px-4 py-2.5 text-left text-sm font-medium text-slate-500 transition hover:bg-cyan-50 hover:text-[#006B80]"
+            className="block w-full px-4 py-2.5 text-left text-sm font-medium text-slate-500 transition hover:bg-cyan-50 hover:text-[#3E9E9E]"
           >
             {placeholder}
           </button>
@@ -128,9 +128,9 @@ export default function DropdownField({
                 setIsOpen(false);
               }}
               className={[
-                "block w-full px-4 py-2.5 text-left text-sm font-medium transition hover:bg-cyan-50 hover:text-[#006B80]",
+                "block w-full px-4 py-2.5 text-left text-sm font-medium transition hover:bg-cyan-50 hover:text-[#3E9E9E]",
                 selectedValue === option.value
-                  ? "bg-cyan-50 text-[#006B80]"
+                  ? "bg-cyan-50 text-[#3E9E9E]"
                   : "text-slate-700",
               ].join(" ")}
             >

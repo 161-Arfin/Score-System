@@ -289,7 +289,7 @@ export default function AssessmentStart() {
 
                   await handleSubmitAssessment();
                 }}
-                className="rounded-lg bg-[#006B80] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#00586A] disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none"
+                className="rounded-lg bg-[#3E9E9E] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#2F7F80] disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none"
               >
                 {isLastSection
                   ? isSubmittingAssessment
@@ -478,7 +478,7 @@ export default function AssessmentStart() {
                       placeholder="Masukkan nama kepala keluarga"
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      className="mt-2 h-12 w-full rounded-lg border border-slate-300 bg-white px-4 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-[#006B80] focus:ring-2 focus:ring-[#006B80]/10 read-only:bg-slate-100"
+                      className="mt-2 h-12 w-full rounded-lg border border-slate-300 bg-white px-4 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-[#3E9E9E] focus:ring-2 focus:ring-[#3E9E9E]/10 read-only:bg-slate-100"
                     />
                     {touched.kepala_keluarga && errors.kepala_keluarga ? (
                       <p className="mt-2 text-sm font-semibold text-red-600">
@@ -498,7 +498,7 @@ export default function AssessmentStart() {
                       placeholder="Masukkan nama istri"
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      className="mt-2 h-12 w-full rounded-lg border border-slate-300 bg-white px-4 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-[#006B80] focus:ring-2 focus:ring-[#006B80]/10 read-only:bg-slate-100"
+                      className="mt-2 h-12 w-full rounded-lg border border-slate-300 bg-white px-4 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-[#3E9E9E] focus:ring-2 focus:ring-[#3E9E9E]/10 read-only:bg-slate-100"
                     />
                     {touched.nama_istri && errors.nama_istri ? (
                       <p className="mt-2 text-sm font-semibold text-red-600">
@@ -594,7 +594,7 @@ export default function AssessmentStart() {
                       placeholder="Masukkan alamat lengkap"
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      className="mt-2 h-12 w-full rounded-lg border border-slate-300 bg-white px-4 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-[#006B80] focus:ring-2 focus:ring-[#006B80]/10 read-only:bg-slate-100"
+                      className="mt-2 h-12 w-full rounded-lg border border-slate-300 bg-white px-4 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-[#3E9E9E] focus:ring-2 focus:ring-[#3E9E9E]/10 read-only:bg-slate-100"
                     />
                     {touched.alamat && errors.alamat ? (
                       <p className="mt-2 text-sm font-semibold text-red-600">
@@ -734,7 +734,7 @@ export default function AssessmentStart() {
                     <button
                       type="submit"
                       disabled={!isValid || isSavingParticipant}
-                      className="rounded-lg bg-[#006B80] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#00586A] disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none"
+                      className="rounded-lg bg-[#3E9E9E] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#2F7F80] disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none"
                     >
                       {isSavingParticipant
                         ? "Menyimpan data..."
@@ -804,7 +804,7 @@ export default function AssessmentStart() {
               <button
                 type="button"
                 onClick={() => setIsPhoneDialogOpen(true)}
-                className="rounded-lg bg-[#006B80] px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#00586A] focus:outline-none focus:ring-2 focus:ring-[#006B80]/20"
+                className="rounded-lg bg-[#3E9E9E] px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#2F7F80] focus:outline-none focus:ring-2 focus:ring-[#3E9E9E]/20"
               >
                 Mulai Assessment
               </button>
