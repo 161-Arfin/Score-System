@@ -1,6 +1,6 @@
 import { api } from "@/lib/api";
 // import { getUnitBmtList } from "@/features/bmt/services/bmt.service";
-import { anggotaBmtEndpoint } from "../constants";
+import { anggotaBmtEndpoint, anggotaBmtEndpointPublic } from "../constants";
 import {
   mapAnggotaBmtListResponse,
   mapAnggotaBmtResponse,
@@ -58,7 +58,7 @@ export async function getAnggotaBmtById(id: string): Promise<AnggotaBmt> {
 export async function createAnggotaBmt(
   payload: AnggotaBmtPayload,
 ): Promise<AnggotaBmt> {
-  const response = await api.post(anggotaBmtEndpoint, payload);
+  const response = await api.post(anggotaBmtEndpointPublic, payload);
 
   return mapAnggotaBmtResponse(response.data);
 }

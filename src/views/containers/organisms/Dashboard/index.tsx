@@ -235,7 +235,7 @@ export default function Dashboard() {
     return () => {
       isMounted = false;
     };
-  }, [selectedUnitId, session?.user?.instansi_id, userRole]);
+  }, [isSuperAdmin, selectedUnitId, session?.user?.instansi_id, userRole]);
 
   const riskSummary = useMemo(() => {
     if (dashboardData?.riskSummary) {
