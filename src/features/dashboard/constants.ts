@@ -1,15 +1,15 @@
 import type { DashboardFilters, TierLabel } from "./types";
 
 export const dashboardColors = {
-  primaryGreen: "#1B5E20",
-  secondaryGreen: "#2E7D32",
-  lightGreen: "#4CAF50",
-  background: "#E8F5E9",
-  berlian: "#9C27B0",
-  emas: "#FFD700",
-  perak: "#C0C0C0",
-  perunggu: "#CD7F32",
-  merah: "#F44336",
+  primaryGreen: "#3E9E9E",
+  secondaryGreen: "#2F7F80",
+  lightGreen: "#A8D414",
+  background: "#EEF9F8",
+  berlian: "#009FE3",
+  emas: "#A8D414",
+  perak: "#9CA3AF",
+  perunggu: "#F58213",
+  merah: "#EF4444",
 };
 
 export const tierColorMap: Record<TierLabel, string> = {

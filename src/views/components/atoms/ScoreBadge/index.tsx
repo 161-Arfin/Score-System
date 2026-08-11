@@ -3,8 +3,8 @@ type ScoreBadgeProps = {
 };
 
 const tierClassName: Record<string, string> = {
-  Berlian: "border-cyan-200 bg-cyan-50 text-cyan-800",
-  Emas: "border-amber-200 bg-amber-50 text-amber-700",
+  Berlian: "border-sky-200 bg-sky-50 text-sky-700",
+  Emas: "border-lime-200 bg-lime-50 text-lime-700",
   Perak: "border-slate-200 bg-slate-50 text-slate-700",
   Perunggu: "border-orange-200 bg-orange-50 text-orange-700",
   Merah: "border-red-200 bg-red-50 text-red-700",

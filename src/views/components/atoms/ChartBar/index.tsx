@@ -12,7 +12,7 @@ export default function ChartBar({
   value,
 }: ChartBarProps) {
   const width = Math.min(100, Math.round((value / max) * 100));
-  const color = tone === "warning" ? "bg-amber-500" : "bg-cyan-800";
+  const color = tone === "warning" ? "bg-orange-500" : "bg-cyan-800";
 
   return (
     <div className="space-y-2 text-sm">
