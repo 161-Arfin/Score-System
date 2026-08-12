@@ -4,26 +4,63 @@ import {
   getAnggotaBmtList,
 } from "@/features/anggota-bmt/services/anggota-bmt.service";
 import type { AnggotaBmt } from "@/features/anggota-bmt/types";
+import { getPublicUnitBmtList } from "@/features/bmt/services/bmt.service";
+import DropdownField from "@/views/components/atoms/DropdownField";
 import TableSkeleton from "@/views/components/atoms/TableSkeleton";
 import AnggotaBmtDeleteDialog from "@/views/components/molecules/AnggotaBmt/AnggotaBmtDeleteDialog";
 import AnggotaBmtTable from "@/views/components/molecules/AnggotaBmt/AnggotaBmtTable";
 
 export default function AnggotaBmtContainer() {
-  const [rows, setRows] = useState<AnggotaBmt[]>([]);
+  const [filteredRows, setFilteredRows] = useState<AnggotaBmt[]>([]);
+  const [selectedUnitId, setSelectedUnitId] = useState("all");
+  const [unitOptions, setUnitOptions] = useState<
+    Array<{ label: string; value: string }>
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
-  const [selectedDeleteRow, setSelectedDeleteRow] = useState<AnggotaBmt | null>(
-    null,
-  );
+  const [selectedDeleteRow, setSelectedDeleteRow] =
+    useState<AnggotaBmt | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const loadRows = useCallback(async () => {
+  // Load Unit BMT dropdown options on mount
+  useEffect(() => {
+    async function loadUnits() {
+      try {
+        const response = await getPublicUnitBmtList();
+        const options = response.data.map((unit) => ({
+          label: unit.instansi_name,
+          value: String(unit.id),
+        }));
+        setUnitOptions(options);
+      } catch {
+        // Fallback if units endpoint fails
+      }
+    }
+    loadUnits();
+  }, []);
+
+  const loadRows = useCallback(async (unitId: string) => {
     try {
       setIsLoading(true);
       setErrorMessage("");
 
-      const response = await getAnggotaBmtList();
-      setRows(response.data);
+      // Passes instansi_id parameter to API (ready for backend filtering when API supports it)
+      const response = await getAnggotaBmtList({
+        instansi_id: unitId !== "all" ? unitId : undefined,
+      });
+
+      // Client-side fallback filter so UI instantly works even if API returns all rows
+      if (unitId === "all") {
+        setFilteredRows(response.data);
+      } else {
+        setFilteredRows(
+          response.data.filter(
+            (row) =>
+              String(row.instansi_id) === unitId ||
+              String(row.instansi_name) === unitId,
+          ),
+        );
+      }
     } catch {
       setErrorMessage("Data Anggota BMT belum bisa dimuat.");
     } finally {
@@ -32,10 +69,10 @@ export default function AnggotaBmtContainer() {
   }, []);
 
   useEffect(() => {
-    const timeoutId = window.setTimeout(loadRows, 0);
+    const timeoutId = window.setTimeout(() => loadRows(selectedUnitId), 0);
 
     return () => window.clearTimeout(timeoutId);
-  }, [loadRows]);
+  }, [loadRows, selectedUnitId]);
 
   const handleDelete = async () => {
     if (!selectedDeleteRow) {
@@ -46,7 +83,7 @@ export default function AnggotaBmtContainer() {
       setIsDeleting(true);
       await deleteAnggotaBmt(selectedDeleteRow.id);
       setSelectedDeleteRow(null);
-      await loadRows();
+      await loadRows(selectedUnitId);
     } finally {
       setIsDeleting(false);
     }
@@ -64,14 +101,33 @@ export default function AnggotaBmtContainer() {
             sistem.
           </p>
         </div>
-        {/* <Link
-          href="/anggota-bmt/create"
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-cyan-800 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-cyan-900"
-        >
-          <Plus className="h-4 w-4" strokeWidth={2} />
-          Tambah Anggota
-        </Link> */}
       </div>
+
+      {/* Filter Section (Wadah API Unit BMT) */}
+      <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 className="text-sm font-bold text-slate-900">
+              Filter Unit BMT
+            </h2>
+            <p className="text-xs text-slate-500">
+              Tampilkan data anggota berdasarkan unit BMT
+            </p>
+          </div>
+
+          <div className="w-full md:w-72">
+            <DropdownField
+              label=""
+              name="anggota_bmt_unit_filter"
+              value={selectedUnitId}
+              onChange={(value) => setSelectedUnitId(value || "all")}
+              options={[{ label: "Semua Unit", value: "all" }, ...unitOptions]}
+              placeholder="Semua Unit"
+              searchable={false}
+            />
+          </div>
+        </div>
+      </section>
 
       {errorMessage ? (
         <div className="rounded-lg border border-red-200 bg-white p-4 text-sm font-medium text-red-700 shadow-sm">
@@ -82,7 +138,10 @@ export default function AnggotaBmtContainer() {
       {isLoading ? (
         <TableSkeleton columns={8} minWidthClassName="min-w-245" />
       ) : (
-        <AnggotaBmtTable rows={rows} onDelete={setSelectedDeleteRow} />
+        <AnggotaBmtTable
+          rows={filteredRows}
+          onDelete={setSelectedDeleteRow}
+        />
       )}
 
       <AnggotaBmtDeleteDialog

@@ -27,8 +27,20 @@ function sortNewestRows(rows: AnggotaBmt[]) {
   });
 }
 
-export async function getAnggotaBmtList(): Promise<AnggotaBmtListResponse> {
-  const response = await api.get(anggotaBmtEndpoint);
+export type AnggotaBmtFilters = {
+  instansi_id?: string | number;
+};
+
+export async function getAnggotaBmtList(
+  filters?: AnggotaBmtFilters,
+): Promise<AnggotaBmtListResponse> {
+  const params: Record<string, unknown> = {};
+
+  if (filters?.instansi_id && filters.instansi_id !== "all") {
+    params.instansi_id = filters.instansi_id;
+  }
+
+  const response = await api.get(anggotaBmtEndpoint, { params });
 
   const result = mapAnggotaBmtListResponse(response.data);
 
