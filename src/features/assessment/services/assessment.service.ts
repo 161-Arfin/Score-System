@@ -479,8 +479,20 @@ export async function validateAssessmentPhone(
   }
 }
 
-export async function getAssessmentResults(): Promise<AssessmentResult[]> {
-  const response = await api.get(assessmentReadEndpoint);
+export type AssessmentReadFilters = {
+  instansi_id?: string | number;
+};
+
+export async function getAssessmentResults(
+  filters?: AssessmentReadFilters,
+): Promise<AssessmentResult[]> {
+  const params: Record<string, unknown> = {};
+
+  if (filters?.instansi_id && filters.instansi_id !== "all") {
+    params.instansi_id = filters.instansi_id;
+  }
+
+  const response = await api.get(assessmentReadEndpoint, { params });
 
   return mapAssessmentReadRows(
     getResponseData<BackendAssessmentReadRow[]>(response),
@@ -493,10 +505,16 @@ export async function submitAssessment(
   await api.post(assessmentEndpoint, mapAssessmentSubmitPayload(payload));
 }
 
-export async function getAssessmentScoreResults(): Promise<
-  AssessmentScoreResult[]
-> {
-  const response = await api.get(assessmentScoreReadEndpoint);
+export async function getAssessmentScoreResults(
+  filters?: AssessmentReadFilters,
+): Promise<AssessmentScoreResult[]> {
+  const params: Record<string, unknown> = {};
+
+  if (filters?.instansi_id && filters.instansi_id !== "all") {
+    params.instansi_id = filters.instansi_id;
+  }
+
+  const response = await api.get(assessmentScoreReadEndpoint, { params });
 
   return mapAssessmentScoreRows(
     getResponseData<BackendAssessmentScoreRow[]>(response),
