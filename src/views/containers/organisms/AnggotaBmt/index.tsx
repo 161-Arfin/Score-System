@@ -91,43 +91,29 @@ export default function AnggotaBmtContainer() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-2xl font-bold text-slate-950">
             Data Anggota BMT
           </h1>
-          <p className="mt-3 text-sm leading-6 text-slate-500">
+          <p className="mt-2 text-sm leading-6 text-slate-500">
             Silahkan kelola data keluarga anggota BMT yang terdaftar pada
             sistem.
           </p>
         </div>
-      </div>
 
-      {/* Filter Section (Wadah API Unit BMT) */}
-      <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h2 className="text-sm font-bold text-slate-900">
-              Filter Unit BMT
-            </h2>
-            <p className="text-xs text-slate-500">
-              Tampilkan data anggota berdasarkan unit BMT
-            </p>
-          </div>
-
-          <div className="w-full md:w-72">
-            <DropdownField
-              label=""
-              name="anggota_bmt_unit_filter"
-              value={selectedUnitId}
-              onChange={(value) => setSelectedUnitId(value || "all")}
-              options={[{ label: "Semua Unit", value: "all" }, ...unitOptions]}
-              placeholder="Semua Unit"
-              searchable={false}
-            />
-          </div>
+        <div className="w-full sm:w-64 shrink-0">
+          <DropdownField
+            label=""
+            name="anggota_bmt_unit_filter"
+            value={selectedUnitId}
+            onChange={(value) => setSelectedUnitId(value || "all")}
+            options={[{ label: "Semua Unit", value: "all" }, ...unitOptions]}
+            placeholder="Semua Unit"
+            searchable={false}
+          />
         </div>
-      </section>
+      </div>
 
       {errorMessage ? (
         <div className="rounded-lg border border-red-200 bg-white p-4 text-sm font-medium text-red-700 shadow-sm">
