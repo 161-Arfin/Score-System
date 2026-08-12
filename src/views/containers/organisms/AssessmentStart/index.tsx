@@ -167,8 +167,21 @@ export default function AssessmentStart() {
     const isCurrentSectionComplete = currentSection.questions.every(
       (question) => answersFormik.values[question.id] !== undefined,
     );
+    const isAllSectionsComplete = assessmentSections.every((section) =>
+      section.questions.every(
+        (question) => answersFormik.values[question.id] !== undefined,
+      ),
+    );
     const handleSubmitAssessment = async () => {
-      if (!participantPayload || !isCurrentSectionComplete) {
+      if (!participantPayload || !isAllSectionsComplete) {
+        setSubmitError(
+          "Harap lengkapi semua pertanyaan sebelum menyimpan assessment.",
+        );
+        return;
+      }
+
+      if (!participantPayload.keluarga_id && !participantPayload.id) {
+        setSubmitError("Data peserta tidak valid. Silakan ulangi dari awal.");
         return;
       }
 
@@ -191,26 +204,30 @@ export default function AssessmentStart() {
           : null;
         const nestedData =
           responseData &&
-          typeof responseData === "object" &&
-          "data" in responseData
+            typeof responseData === "object" &&
+            "data" in responseData
             ? responseData.data
             : null;
         const backendMessage =
           responseData &&
-          typeof responseData === "object" &&
-          typeof responseData.message === "string" &&
-          !responseData.message.startsWith("External API request failed")
+            typeof responseData === "object" &&
+            typeof responseData.message === "string" &&
+            !responseData.message.startsWith("External API request failed")
             ? responseData.message
             : nestedData &&
-                typeof nestedData === "object" &&
-                "message" in nestedData &&
-                typeof nestedData.message === "string"
+              typeof nestedData === "object" &&
+              "message" in nestedData &&
+              typeof nestedData.message === "string"
               ? nestedData.message
-              : "";
+              : axios.isAxiosError(error)
+                ? error.message
+                : error instanceof Error
+                  ? error.message
+                  : "";
 
         setSubmitError(
           backendMessage ||
-            "Assessment belum bisa disimpan. Coba ulangi kembali.",
+          "Assessment belum bisa disimpan. Coba ulangi kembali.",
         );
       } finally {
         setIsSubmittingAssessment(false);
