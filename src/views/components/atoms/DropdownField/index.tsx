@@ -14,6 +14,7 @@ type DropdownFieldProps = {
   options: DropdownFieldOption[];
   placeholder: string;
   disabled?: boolean;
+  searchable?: boolean;
 };
 
 export default function DropdownField({
@@ -23,6 +24,7 @@ export default function DropdownField({
   onChange,
   options,
   placeholder,
+  searchable = true,
   value,
 }: DropdownFieldProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -46,10 +48,12 @@ export default function DropdownField({
     }
   }, [selectedLabel, isOpen]);
 
-  // Filter options based on what user types in the main input
-  const filteredOptions = options.filter((option) =>
-    option.label.toLowerCase().includes(inputText.toLowerCase().trim()),
-  );
+  // Filter options based on what user types in the main input (only if searchable)
+  const filteredOptions = searchable
+    ? options.filter((option) =>
+        option.label.toLowerCase().includes(inputText.toLowerCase().trim()),
+      )
+    : options;
 
   const updateValue = (nextValue: string) => {
     if (onChange) {
@@ -127,68 +131,94 @@ export default function DropdownField({
       ) : null}
       <input type="hidden" name={name} value={selectedValue} />
 
-      <div className="relative flex items-center">
-        <input
-          ref={inputRef}
-          type="text"
-          disabled={disabled}
-          value={inputText}
-          placeholder={placeholder}
-          onFocus={() => {
-            if (disabled) return;
-            updateOpenDirection();
-            setIsOpen(true);
-          }}
-          onChange={(e) => {
-            setInputText(e.target.value);
-            if (!isOpen) {
+      {searchable ? (
+        <div className="relative flex items-center">
+          <input
+            ref={inputRef}
+            type="text"
+            disabled={disabled}
+            value={inputText}
+            placeholder={placeholder}
+            onFocus={() => {
+              if (disabled) return;
               updateOpenDirection();
               setIsOpen(true);
-            }
-          }}
-          className={[
-            "h-12 w-full rounded-lg border border-slate-300 bg-white pl-4 pr-12 text-sm outline-none transition focus:border-[#3E9E9E] focus:ring-2 focus:ring-[#3E9E9E]/10 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400",
-            selectedValue || inputText ? "font-medium text-slate-950" : "text-slate-500",
-          ].join(" ")}
-        />
-
-        <div className="absolute right-3 flex items-center gap-1">
-          {selectedValue ? (
-            <button
-              type="button"
-              onClick={handleClear}
-              className="rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
-              title="Hapus pilihan"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          ) : null}
-          <button
-            type="button"
-            disabled={disabled}
-            onClick={() => {
-              if (disabled) return;
-              if (isOpen) {
-                setIsOpen(false);
-                setInputText(selectedLabel);
-              } else {
+            }}
+            onChange={(e) => {
+              setInputText(e.target.value);
+              if (!isOpen) {
                 updateOpenDirection();
                 setIsOpen(true);
-                inputRef.current?.focus();
               }
             }}
-            className="p-1 text-slate-400 hover:text-slate-600"
-          >
-            <ChevronDown
-              className={[
-                "h-4 w-4 shrink-0 transition",
-                isOpen ? "rotate-180 text-[#3E9E9E]" : "",
-              ].join(" ")}
-              strokeWidth={2}
-            />
-          </button>
+            className={[
+              "h-12 w-full rounded-lg border border-slate-300 bg-white pl-4 pr-12 text-sm outline-none transition focus:border-[#3E9E9E] focus:ring-2 focus:ring-[#3E9E9E]/10 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400",
+              selectedValue || inputText ? "font-medium text-slate-950" : "text-slate-500",
+            ].join(" ")}
+          />
+
+          <div className="absolute right-3 flex items-center gap-1">
+            {selectedValue ? (
+              <button
+                type="button"
+                onClick={handleClear}
+                className="rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+                title="Hapus pilihan"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            ) : null}
+            <button
+              type="button"
+              disabled={disabled}
+              onClick={() => {
+                if (disabled) return;
+                if (isOpen) {
+                  setIsOpen(false);
+                  setInputText(selectedLabel);
+                } else {
+                  updateOpenDirection();
+                  setIsOpen(true);
+                  inputRef.current?.focus();
+                }
+              }}
+              className="p-1 text-slate-400 hover:text-slate-600"
+            >
+              <ChevronDown
+                className={[
+                  "h-4 w-4 shrink-0 transition",
+                  isOpen ? "rotate-180 text-[#3E9E9E]" : "",
+                ].join(" ")}
+                strokeWidth={2}
+              />
+            </button>
+          </div>
         </div>
-      </div>
+      ) : (
+        <button
+          type="button"
+          disabled={disabled}
+          aria-expanded={isOpen}
+          onClick={() => {
+            if (disabled) return;
+            updateOpenDirection();
+            setIsOpen((current) => !current);
+          }}
+          className={[
+            "flex h-12 w-full items-center justify-between rounded-lg border border-slate-300 bg-white px-4 text-left text-sm outline-none transition focus:border-[#3E9E9E] focus:ring-2 focus:ring-[#3E9E9E]/10 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400",
+            selectedValue ? "font-medium text-slate-950" : "text-slate-500",
+          ].join(" ")}
+        >
+          <span className="truncate">{selectedLabel || placeholder}</span>
+          <ChevronDown
+            className={[
+              "ml-3 h-4 w-4 shrink-0 text-slate-500 transition",
+              isOpen ? "rotate-180 text-[#3E9E9E]" : "",
+            ].join(" ")}
+            strokeWidth={2}
+          />
+        </button>
+      )}
 
       {isOpen ? (
         <div
@@ -205,7 +235,7 @@ export default function DropdownField({
             }}
             className="block w-full px-4 py-2.5 text-left text-sm font-medium text-slate-400 transition hover:bg-cyan-50 hover:text-[#3E9E9E]"
           >
-            {placeholder}
+            {placeholder || "Pilih..."}
           </button>
 
           {filteredOptions.length > 0 ? (

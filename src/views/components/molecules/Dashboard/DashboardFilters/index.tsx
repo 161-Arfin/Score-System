@@ -28,7 +28,8 @@ export default function DashboardFilters({
             value={selectedUnitId}
             onChange={(value) => onUnitChange(value || "all")}
             options={[{ label: "Semua Unit", value: "all" }, ...unitOptions]}
-            placeholder=""
+            placeholder="Semua Unit"
+            searchable={false}
           />
         </div>
       </div>
