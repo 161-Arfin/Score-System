@@ -15,7 +15,7 @@ const publicApiPrefixes = [
   "/api/regions",
   "/api/hello",
   "/api/backend/assessment/validate-phone",
-  "/api/backend/v1/keluarga/checkbyphone",
+  "/api/backend/v1/keluarga",
 ];
 
 function isStaticAsset(pathname: string) {
@@ -41,8 +41,7 @@ function isPublicApiRoute(pathname: string, method: string) {
     (pathname === "/api/backend/v1/instansi" && method === "GET") ||
     ((pathname === "/api/backend/assessment" ||
       pathname === "/api/backend/v1/assessment") &&
-      method === "POST") ||
-    (pathname === "/api/backend/v1/auth/keluarga" && method === "POST")
+      method === "POST")
   );
 }
 
@@ -61,10 +60,16 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = await getToken({
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET,
-  });
+  let token = null;
+  try {
+    token = await getToken({
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET,
+    });
+  } catch {
+    // JWT decryption may fail for unauthenticated users with stale cookies
+    token = null;
+  }
 
   if (isPublicRoute(pathname)) {
     if (token && pathname === LOGIN_PATH) {

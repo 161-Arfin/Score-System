@@ -9,6 +9,22 @@ type AssessmentPhoneDialogProps = {
   onValidated: (result: AssessmentValidationResult) => void;
 };
 
+export function normalizePhoneNumber(raw: string): string {
+  let digits = raw.replace(/\D/g, "");
+
+  if (!digits) return "";
+
+  if (digits.startsWith("08")) {
+    digits = "628" + digits.slice(2);
+  } else if (digits.startsWith("8")) {
+    digits = "628" + digits.slice(1);
+  } else if (digits.startsWith("0")) {
+    digits = "62" + digits.slice(1);
+  }
+
+  return digits;
+}
+
 export default function AssessmentPhoneDialog({
   isOpen,
   onClose,
@@ -17,6 +33,7 @@ export default function AssessmentPhoneDialog({
   const [error, setError] = useState("");
   const [noticeMessage, setNoticeMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
   const formik = useFormik({
     initialValues: {
       phone: "",
@@ -24,9 +41,13 @@ export default function AssessmentPhoneDialog({
     validateOnMount: true,
     validate: (values) => {
       const errors: Partial<Record<"phone", string>> = {};
+      const phone = values.phone;
 
-      if (!/^628[0-9]{7,15}$/.test(values.phone)) {
-        errors.phone = "Nomor Whatsapp wajib diawali 628.";
+      if (!phone) {
+        errors.phone = "Nomor Whatsapp wajib diisi.";
+      } else if (!/^628[1-9][0-9]{7,12}$/.test(phone)) {
+        errors.phone =
+          "Nomor Whatsapp tidak valid";
       }
 
       return errors;
@@ -68,6 +89,10 @@ export default function AssessmentPhoneDialog({
     formik.resetForm();
     onClose();
   };
+
+  const displayPhone = formik.values.phone.startsWith("62")
+    ? formik.values.phone.slice(2)
+    : formik.values.phone;
 
   if (noticeMessage) {
     return (
@@ -120,19 +145,30 @@ export default function AssessmentPhoneDialog({
         </div>
 
         <form onSubmit={formik.handleSubmit} className="px-6 py-4">
-          <input
-            id="assessment-phone"
-            name="phone"
-            type="tel"
-            inputMode="numeric"
-            value={formik.values.phone}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            placeholder="6281212345678"
-            className="mt-2 h-12 w-full rounded-lg border border-slate-300 px-4 text-base text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-[#3E9E9E] focus:ring-2 focus:ring-[#3E9E9E]/10"
-          />
-          <p className="mt-2 text-sm text-slate-500">
-            Silahkan masukkan nomor Whatsapp anda.
+          <label htmlFor="assessment-phone" className="block text-sm font-semibold text-slate-600">
+            Nomor Whatsapp
+          </label>
+          <div className="relative mt-2 flex h-12 w-full items-center rounded-lg border border-slate-300 bg-white transition focus-within:border-[#3E9E9E] focus-within:ring-2 focus-within:ring-[#3E9E9E]/10">
+            <div className="flex h-full items-center justify-center rounded-l-lg border-r border-slate-200 bg-slate-50 px-3.5 text-md font-bold text-slate-700">
+              <span>62</span>
+            </div>
+            <input
+              id="assessment-phone"
+              name="phone"
+              type="tel"
+              inputMode="numeric"
+              value={displayPhone}
+              onChange={(e) => {
+                const cleaned = normalizePhoneNumber(e.target.value);
+                formik.setFieldValue("phone", cleaned);
+              }}
+              onBlur={formik.handleBlur}
+              placeholder="81234567890"
+              className="h-full w-full rounded-r-lg px-3.5 text-base font-medium text-slate-950 outline-none placeholder:text-slate-400"
+            />
+          </div>
+          <p className="mt-2 text-xs text-slate-500">
+            Anda bisa mengetik diawali 08, 8, atau 62.
           </p>
           {formik.touched.phone && formik.errors.phone ? (
             <p className="mt-2 text-sm font-semibold text-red-600">
