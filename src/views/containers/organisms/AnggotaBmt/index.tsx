@@ -91,15 +91,27 @@ export default function AnggotaBmtContainer() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-2xl font-bold text-slate-950">
             Data Anggota BMT
           </h1>
-          <p className="mt-3 text-sm leading-6 text-slate-500">
+          <p className="mt-2 text-sm leading-6 text-slate-500">
             Silahkan kelola data keluarga anggota BMT yang terdaftar pada
             sistem.
           </p>
+        </div>
+
+        <div className="w-full sm:w-64 shrink-0">
+          <DropdownField
+            label=""
+            name="anggota_bmt_unit_filter"
+            value={selectedUnitId}
+            onChange={(value) => setSelectedUnitId(value || "all")}
+            options={[{ label: "Semua Unit", value: "all" }, ...unitOptions]}
+            placeholder="Semua Unit"
+            searchable={false}
+          />
         </div>
       </div>
 

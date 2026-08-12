@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
@@ -136,13 +137,15 @@ export default function Sidebar({
           ].join(" ")}
         >
           {!isCollapsed ? (
-            <div className="overflow-hidden whitespace-nowrap transition-opacity duration-200">
-              <p className="text-xs font-semibold uppercase text-cyan-800">
-                Score System
-              </p>
-              <h2 className="mt-0.5 text-base font-bold text-slate-950">
-                Sakinah Score
-              </h2>
+            <div className="flex items-center gap-3 overflow-hidden whitespace-nowrap transition-opacity duration-200">
+              <Image
+                src="/img/lazmku.png"
+                alt="LAZ MKU Logo"
+                width={140}
+                height={40}
+                className="h-10 w-auto object-contain"
+                priority
+              />
             </div>
           ) : null}
           <button
@@ -314,9 +317,6 @@ export default function Sidebar({
                     aria-hidden="true"
                     className="absolute -left-[7px] top-[22px] h-3.5 w-3.5 rotate-45 border-b border-l border-slate-200 bg-white"
                   />
-                  {/* <p className="px-3 py-2 text-xs font-bold uppercase tracking-wide text-cyan-800">
-                  Unit BMT
-                </p> */}
                   <div className="space-y-1">
                     {bmtMenuItems.map((item) => {
                       const isActive = router.pathname === item.href;
@@ -534,7 +534,7 @@ export default function Sidebar({
           </Link>
 
           <SidebarSectionLabel isCollapsed={isCollapsed}>
-            User
+            Pengaturan
           </SidebarSectionLabel>
 
           <Link
@@ -543,7 +543,7 @@ export default function Sidebar({
               closeFloatingMenus();
               onCloseMobile();
             }}
-            title="Profile User"
+            title="Profil Saya"
             className={[
               "flex min-w-max items-center gap-3 overflow-hidden rounded-lg text-sm font-semibold transition-all duration-300 ease-out lg:min-w-0",
               isCollapsed
@@ -554,17 +554,14 @@ export default function Sidebar({
                 : "text-slate-600 hover:bg-cyan-50 hover:text-cyan-800",
             ].join(" ")}
           >
-            <UserRound
-              className="h-[18px] w-[18px] shrink-0"
-              strokeWidth={2}
-            />
+            <UserRound className="h-[18px] w-[18px] shrink-0" strokeWidth={2} />
             <span
               className={[
                 "whitespace-nowrap transition-opacity duration-200",
                 isCollapsed ? "lg:w-0 lg:opacity-0" : "opacity-100",
               ].join(" ")}
             >
-              Profile User
+              Profil Saya
             </span>
           </Link>
         </nav>

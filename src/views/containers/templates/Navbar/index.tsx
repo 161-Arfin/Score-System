@@ -16,7 +16,7 @@ export default function Navbar({
   onOpenMobileSidebar,
   showMobileMenu = true,
   showProfileMenu = true,
-  title = "Sakinah Score Dashboard",
+  title = "Sakinah Score System",
 }: NavbarProps) {
   const { data: session, status } = useSession();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -28,7 +28,7 @@ export default function Navbar({
   const profileRole =
     isMounted
       ? session?.user?.usertype_name ??
-        (session?.user?.role === "superadmin" ? "Super Admin" : "Admin")
+      (session?.user?.role === "superadmin" ? "Super Admin" : "Admin")
       : "Administrator";
   const initials = profileName
     .split(" ")
@@ -77,14 +77,13 @@ export default function Navbar({
                 <Menu className="h-5 w-5" strokeWidth={2} />
               </button>
             ) : null}
-            <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-wide text-cyan-800 lg:hidden">
-                Score System
-              </p>
-              <h1 className="truncate text-base font-bold leading-tight text-slate-950 sm:text-lg lg:text-xl">
-                {title}
-              </h1>
-            </div>
+            {title ? (
+              <div className="min-w-0">
+                <h1 className="truncate text-base font-bold leading-tight text-slate-950 sm:text-lg lg:text-xl">
+                  {title}
+                </h1>
+              </div>
+            ) : null}
           </div>
         </div>
 
