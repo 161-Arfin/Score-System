@@ -18,8 +18,9 @@ export default function AnggotaBmtContainer() {
   >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
-  const [selectedDeleteRow, setSelectedDeleteRow] =
-    useState<AnggotaBmt | null>(null);
+  const [selectedDeleteRow, setSelectedDeleteRow] = useState<AnggotaBmt | null>(
+    null,
+  );
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Load Unit BMT dropdown options on mount
@@ -101,18 +102,6 @@ export default function AnggotaBmtContainer() {
             sistem.
           </p>
         </div>
-
-        <div className="w-full sm:w-64 shrink-0">
-          <DropdownField
-            label=""
-            name="anggota_bmt_unit_filter"
-            value={selectedUnitId}
-            onChange={(value) => setSelectedUnitId(value || "all")}
-            options={[{ label: "Semua Unit", value: "all" }, ...unitOptions]}
-            placeholder="Semua Unit"
-            searchable={false}
-          />
-        </div>
       </div>
 
       {/* Filter Section (Wadah API Unit BMT) */}
@@ -150,10 +139,7 @@ export default function AnggotaBmtContainer() {
       {isLoading ? (
         <TableSkeleton columns={8} minWidthClassName="min-w-245" />
       ) : (
-        <AnggotaBmtTable
-          rows={filteredRows}
-          onDelete={setSelectedDeleteRow}
-        />
+        <AnggotaBmtTable rows={filteredRows} onDelete={setSelectedDeleteRow} />
       )}
 
       <AnggotaBmtDeleteDialog
