@@ -1,3 +1,4 @@
+import { Check } from "lucide-react";
 import type { AssessmentSection } from "@/features/assessment/types";
 
 type AssessmentQuestionSectionProps = {
@@ -87,12 +88,16 @@ export default function AssessmentQuestionSection({
                     />
                     <span
                       className={[
-                        "h-10 w-10 rounded-full border-2 transition",
+                        "flex h-10 w-10 items-center justify-center rounded-full border-2 transition",
                         isSelected
-                          ? "border-[#3E9E9E] bg-cyan-100 shadow-[0_0_0_6px_rgba(62,158,158,0.14)]"
+                          ? "border-[#3E9E9E] bg-[#3E9E9E] text-white shadow-[0_0_0_6px_rgba(62,158,158,0.14)]"
                           : "border-slate-300 bg-white hover:border-[#3E9E9E]/60 hover:bg-cyan-50",
                       ].join(" ")}
-                    />
+                    >
+                      {isSelected ? (
+                        <Check className="h-5 w-5 stroke-[2.5]" />
+                      ) : null}
+                    </span>
                     <span className="line-clamp-2 min-h-8 text-xs font-bold leading-4 text-slate-700">
                       {option.label}
                     </span>
@@ -132,7 +137,7 @@ export default function AssessmentQuestionSection({
                         : "text-slate-400",
                   ].join(" ")}
                 >
-                  <span className="hidden sm:inline">Section </span>
+                  <span className="hidden sm:inline">Step </span>
                   {step.number}
                 </span>
               </div>
