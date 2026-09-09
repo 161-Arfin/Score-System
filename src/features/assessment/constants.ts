@@ -11,7 +11,7 @@ export const assessmentWelcome = {
     "Assalamu'alaikum warahmatullahi wabarakatuh,",
     "Terima kasih telah berpartisipasi dalam Sakinah Score Assessment.",
     "Ini adalah alat ukur kesejahteraan keluarga berbasis Maqashid Syariah (5 Dimensi: Agama, Jiwa, Akal, Keturunan, Harta).",
-    "Waktu pengisian: +-10-15 menit",
+    "Waktu pengisian: ±10-15 menit",
     "Update: Setiap 3 bulan (kuartalan)",
     "Data Anda dijaga kerahasiaannya dan hanya diakses oleh konselor yang ditunjuk LAZ MKU.",
     "Wassalamu'alaikum warahmatullahi wabarakatuh,",
@@ -102,7 +102,7 @@ export const assessmentSections: AssessmentSection[] = [
           { label: "Rutin kurang", value: 12 },
           { label: "Kadang", value: 8 },
           { label: "Jarang", value: 4 },
-          { label: "Tidak Pernah", value: 0 },
+          { label: "Tidak pernah", value: 0 },
         ],
       },
       {
@@ -110,7 +110,7 @@ export const assessmentSections: AssessmentSection[] = [
         indicator: "Kajian keislaman keluarga per bulan",
         scoreRange: "0-15",
         options: [
-          { label: "> 4x", value: 15 },
+          { label: ">4x", value: 15 },
           { label: "3-4x", value: 12 },
           { label: "2x", value: 8 },
           { label: "1x", value: 4 },
@@ -146,7 +146,7 @@ export const assessmentSections: AssessmentSection[] = [
           { label: "Sebagian", value: 16 },
           { label: "Kadang", value: 12 },
           { label: "Jarang", value: 8 },
-          { label: "0", value: 0 },
+          { label: "Tidak pernah", value: 0 },
         ],
       },
       {
@@ -170,7 +170,7 @@ export const assessmentSections: AssessmentSection[] = [
           { label: "Sering", value: 12 },
           { label: "Kadang", value: 8 },
           { label: "Jarang", value: 4 },
-          { label: "0", value: 0 },
+          { label: "Tidak pernah", value: 0 },
         ],
       },
       {
@@ -182,7 +182,7 @@ export const assessmentSections: AssessmentSection[] = [
           { label: "Sebagian", value: 12 },
           { label: "Kadang", value: 8 },
           { label: "Jarang", value: 4 },
-          { label: "0", value: 0 },
+          { label: "Tidak pernah", value: 0 },
         ],
       },
       {
@@ -191,10 +191,10 @@ export const assessmentSections: AssessmentSection[] = [
         scoreRange: "0-20",
         options: [
           { label: "Sehat", value: 20 },
-          { label: "Mild", value: 16 },
-          { label: "Moderate", value: 12 },
-          { label: "High", value: 8 },
-          { label: "Severe", value: 0 },
+          { label: "Ringan", value: 16 },
+          { label: "Sedang", value: 12 },
+          { label: "Tinggi", value: 8 },
+          { label: "Sangat tinggi", value: 0 },
         ],
       },
       {
@@ -231,11 +231,11 @@ export const assessmentSections: AssessmentSection[] = [
         indicator: "Waktu belajar bersama orang tua per minggu",
         scoreRange: "0-15",
         options: [
-          { label: "> 5 jam", value: 15 },
+          { label: ">5 jam", value: 15 },
           { label: "3-5 jam", value: 12 },
           { label: "1-2 jam", value: 8 },
-          { label: "< 1 jam", value: 4 },
-          { label: "0", value: 0 },
+          { label: "<1 jam", value: 4 },
+          { label: "0 jam", value: 0 },
         ],
       },
       {
@@ -243,10 +243,10 @@ export const assessmentSections: AssessmentSection[] = [
         indicator: "Literasi keluarga (baca buku, kajian)",
         scoreRange: "0-15",
         options: [
-          { label: "> 5 buku/tahun", value: 15 },
-          { label: "3-5", value: 12 },
-          { label: "1-2", value: 8 },
-          { label: "0", value: 0 },
+          { label: ">5 buku/tahun", value: 15 },
+          { label: "3-5 buku/tahun", value: 12 },
+          { label: "1-2 buku/tahun", value: 8 },
+          { label: "Tidak pernah", value: 0 },
         ],
       },
       {
@@ -257,7 +257,7 @@ export const assessmentSections: AssessmentSection[] = [
           { label: "Terkontrol", value: 15 },
           { label: "Cukup", value: 12 },
           { label: "Kadang", value: 8 },
-          { label: "Tidak", value: 0 },
+          { label: "Tidak ada", value: 0 },
         ],
       },
       {
@@ -268,7 +268,7 @@ export const assessmentSections: AssessmentSection[] = [
           { label: "Aktif", value: 15 },
           { label: "Cukup", value: 12 },
           { label: "Kadang", value: 8 },
-          { label: "Tidak", value: 0 },
+          { label: "Tidak aktif", value: 0 },
         ],
       },
       {
@@ -284,7 +284,7 @@ export const assessmentSections: AssessmentSection[] = [
       },
       {
         id: "q26",
-        indicator: "Prestasi/progress anak (akademik & akhlak)",
+        indicator: "Prestasi/progres anak (akademik & akhlak)",
         scoreRange: "0-10",
         options: [
           { label: "Meningkat", value: 10 },
@@ -306,7 +306,7 @@ export const assessmentSections: AssessmentSection[] = [
         indicator: "Frekuensi konflik suami-istri per bulan",
         scoreRange: "0-15",
         options: [
-          { label: "0", value: 15 },
+          { label: "0x", value: 15 },
           { label: "1-2x", value: 12 },
           { label: "3-4x", value: 8 },
           { label: "5-6x", value: 4 },
@@ -334,7 +334,7 @@ export const assessmentSections: AssessmentSection[] = [
           { label: "7-10 jam", value: 12 },
           { label: "4-6 jam", value: 8 },
           { label: "1-3 jam", value: 4 },
-          { label: "0", value: 0 },
+          { label: "0 jam", value: 0 },
         ],
       },
       {
@@ -351,7 +351,7 @@ export const assessmentSections: AssessmentSection[] = [
       },
       {
         id: "q31",
-        indicator: "Pola asuh anak (otoritatif, islami)",
+        indicator: "Pola asuh anak (otoritatif, Islami)",
         scoreRange: "0-15",
         options: [
           { label: "Otoritatif", value: 15 },
@@ -394,14 +394,14 @@ export const assessmentSections: AssessmentSection[] = [
     questions: [
       {
         id: "q34",
-        indicator: "Stabilitas income (3 bulan terakhir)",
+        indicator: "Stabilitas penghasilan (3 bulan terakhir)",
         scoreRange: "0-20",
         options: [
           { label: "Stabil", value: 20 },
           { label: "Fluktuatif ringan", value: 16 },
           { label: "Fluktuatif", value: 12 },
           { label: "Menurun", value: 8 },
-          { label: "Tidak", value: 0 },
+          { label: "Tidak stabil", value: 0 },
         ],
       },
       {
@@ -425,7 +425,7 @@ export const assessmentSections: AssessmentSection[] = [
           { label: "4-6 bulan", value: 16 },
           { label: "2-3 bulan", value: 12 },
           { label: "1 bulan", value: 8 },
-          { label: "0", value: 0 },
+          { label: "0 bulan", value: 0 },
         ],
       },
       {
@@ -436,7 +436,7 @@ export const assessmentSections: AssessmentSection[] = [
           { label: "Rutin detail", value: 15 },
           { label: "Rutin sederhana", value: 12 },
           { label: "Kadang", value: 8 },
-          { label: "Tidak", value: 0 },
+          { label: "Tidak pernah", value: 0 },
         ],
       },
       {
@@ -459,7 +459,7 @@ export const assessmentSections: AssessmentSection[] = [
           { label: "Ada & berkembang", value: 10 },
           { label: "Stabil", value: 8 },
           { label: "Menurun", value: 6 },
-          { label: "Tidak", value: 0 },
+          { label: "Tidak ada", value: 0 },
         ],
       },
     ],
