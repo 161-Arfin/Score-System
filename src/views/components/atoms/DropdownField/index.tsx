@@ -202,7 +202,14 @@ export default function DropdownField({
           onClick={() => {
             if (disabled) return;
             updateOpenDirection();
-            setIsOpen((current) => !current);
+            setIsOpen(true);
+          }}
+          onChange={(e) => {
+            setInputText(e.target.value);
+            if (!isOpen) {
+              updateOpenDirection();
+              setIsOpen(true);
+            }
           }}
           className={[
             "flex h-12 w-full items-center justify-between rounded-lg border border-slate-300 bg-white px-4 text-left text-sm outline-none transition focus:border-[#3E9E9E] focus:ring-2 focus:ring-[#3E9E9E]/10 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400",
